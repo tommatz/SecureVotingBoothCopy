@@ -1,4 +1,4 @@
-# just-bocats
+# Just Bobcats
 # Team Leader: Lucas Nagle 
 # Quality Assurance: Tom Matz
 # Release Manager:
