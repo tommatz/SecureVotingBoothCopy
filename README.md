@@ -1,6 +1,6 @@
 # just-bocats
 # Team Leader: Lucas Nagle 
-# Quality Assurance: 
+# Quality Assurance: Tom Matz
 # Release Manager:
 # Documentation Manager: 
 #
