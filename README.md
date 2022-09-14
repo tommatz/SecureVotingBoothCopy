@@ -2,7 +2,7 @@
 # Team Leader: Lucas Nagle 
 # Quality Assurance: Tom Matz
 # Release Manager: Ryan Harris
-# Documentation Manager: 
+# Documentation Manager: Gerry Pasquale
 #
 #
 #
