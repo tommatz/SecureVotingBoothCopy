@@ -1,8 +1,11 @@
-<p align=center>
-  <h3 style="text-align:center; margin-bottom: 5px;"> Just Bobcats</h3>
-  <h4 style="text-align:center; margin-top: 0px; margin-bottom:5px"> ElectionGuard - Secure Voting Software</h4>
-  <h5 style="text-align:center; margin-top: 0px;"> Project Owner: Chad Mourning </h5>
-</p>
+
+<div align="center">
+  <h3> Just Bobcats</h3>
+  <h4> ElectionGuard - Secure Voting Software</h4>
+  <h5> Project Owner: Chad Mourning </h5>
+</div>
+
+—
 
 ## Overview
 The goal of this project is to create secure voting booth software using an implementation of Microsoft Electionguard. 
