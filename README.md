@@ -5,7 +5,7 @@
   <h5> Project Owner: Chad Mourning </h5>
 </div>
 
-—
+------------------
 
 ## Overview
 The goal of this project is to create secure voting booth software using an implementation of Microsoft Electionguard. 
