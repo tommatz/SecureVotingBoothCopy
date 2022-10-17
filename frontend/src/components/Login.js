@@ -1,4 +1,4 @@
-const Template = () => {
+const Login = () => {
 
     //Any page JSX would go up here
 
@@ -17,4 +17,4 @@ const Template = () => {
     )
 }
 
-export default Template
+export default Login
