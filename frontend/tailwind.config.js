@@ -6,6 +6,7 @@ module.exports = {
   ],
   theme: {
     screens: {
+      'betterhover': {'raw': '(hover: hover)'}, //This is used instead of the built-in tailwind hover to support touchscreen devices that do not have the hover option
       xs: '320px',
       sm: '600px',
       md: '876px',

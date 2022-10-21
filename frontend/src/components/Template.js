@@ -7,9 +7,9 @@ const Template = () => {
     return (
         <section id="template" className="h-[95%] w-full"> {/* The 95% vertical height of the template section is to fill the rest of the screen (top bar takes 5%) */}
             <div className="flex flex-col space-y-4 h-full w-full">
-                <div className="m-auto text-center dark:text-white"> {/* This div is needed to center the items inside it using m-auto (margins auto) */}
+                <div className="m-auto text-center text-black dark:text-white transition-colors duration-500"> {/* This div is needed to center the items inside it using m-auto (margins auto) */}
                     <h1 className="text-4xl font-bold">Header</h1>
-                    <p className="text-xl text-neutral-700 dark:text-neutral-400">subtext</p>
+                    <p className="text-xl text-neutral-700 dark:text-neutral-400 transition-colors duration-500">subtext</p>
                 </div>
             </div>
         </section>
