@@ -1,12 +1,16 @@
+import { useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import Template from './components/Template';
 import TopBar from './components/TopBar';
+import Template from './components/Template';
 
 function App() {
+
+  const [darkMode, setDarkMode] = useState(false) //Default is false
+
   return (
     <BrowserRouter>
-      <header id='App' className='bg-neutral-400 h-screen w-full'>
-        <TopBar />
+      <header id='App' className={`h-screen w-screen ${darkMode && 'dark bg-slate-800'}`}>
+        <TopBar darkMode={darkMode} setDarkMode={setDarkMode}/>
         <Routes>
           <Route path='/' element={<Template />}></Route>
         </Routes>
