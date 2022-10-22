@@ -9,7 +9,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <header id='App' className={`h-screen w-screen ${darkMode && 'dark bg-slate-800'}`}>
+      <header id='App' className={`h-screen w-screen transition-colors duration-500  ${darkMode && 'dark bg-slate-800'}`}>
         <TopBar darkMode={darkMode} setDarkMode={setDarkMode}/>
         <Routes>
           <Route path='/' element={<Template />}></Route>
