@@ -2,6 +2,7 @@ const Template = () => {
 
     //Any page JSX would go up here
 
+
     /*This return statement is what gets passed up to the App.js then to the index.js
     it is then displayed on the user's screen as the html within the return statement*/
 
