@@ -8,7 +8,6 @@ from fastapi.exceptions import RequestValidationError
 app = FastAPI()
 db : Dict[str, Dict[str, int]] = {}
 
-
 @app.post("/voter/send_vote")
 def recieve_ballot(ballot : Ballot):
     for contest in ballot.contests:

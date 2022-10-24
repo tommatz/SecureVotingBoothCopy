@@ -32,7 +32,6 @@ class OptionContest(BaseModel):
 class Contests(BaseModel):
     contests: List[Union[CandidateContest, OptionContest]]
     
-    
 class BallotSelection(BaseModel):
     object_id: str
     sequence_order: int
