@@ -4,7 +4,8 @@ import re
 from xmlrpc.client import Boolean
 import logging
 import datetime
-import appVars as appVars
+import applicationVariables
+import pathlib
 
 def getLogin(): # used to get the login information from a voter TODO: change from command line to from front end with fast API
     print("enter your social security number (ddd-dd-dddd)")
@@ -20,19 +21,28 @@ def checkSSN(SSN): # Checks the SSN against a regex to check if the value is pos
         SSN = searchObj.string
     return True
 
-def main(): # Main driver for program
+def setLogging():
+    date = datetime.date.today()
+    path = pathlib.Path(__file__).parent.resolve() # get the file path of this file
+    logging.basicConfig(filename=str(path) + "/logs/" + str(date) + ".log", filemode='a' ,
+    encoding='utf-8', level=applicationVariables.AppVars.logLvl, 
+    format='%(asctime)s - %(message)s',datefmt='%d-%b-%y %H:%M:%S') # sets the configuration for the logging and creates the file
     
+
+def main(): # Main driver for program
+    setLogging() # starts the logging
+    logging.info("Starting app")
     print("Creators: Lucas Nagle, Tom Matz, Ryan Harris, and Gerry Pasquale")
     print("Client: Dr. Chad Mourning")
     print("Team: Just-Bobcats")
-    
-    #TODO: update to match new requirements from client(10/21/22) for first last address
+    logging.info("printed info")
+    #TODO: update to match new requirements from client(10/21/22) for first, last, address
     SSN = getLogin()
     isSSN = Boolean(checkSSN(SSN))
     while not isSSN:
         SSN = getLogin()
         isSSN = Boolean(checkSSN(SSN))
-         
+    logging.info("Terminating app")
     return 0
 
 
@@ -65,9 +75,10 @@ class Test(unittest.TestCase):
 
     #main method to start code from
 if __name__ == "__main__":    
-    #main()
-    unittest.main() # run the unit tests
-
+    main()
+    if applicationVariables.AppVars.build == applicationVariables.Build.DEBUG: # TODO: change this solution to match what Ryan did with fast API testing
+        unittest.main() # run the unit tests 
+ 
 
 
 
