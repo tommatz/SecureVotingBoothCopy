@@ -22,7 +22,7 @@ def recieve_ballot(ballot : Ballot):
     print(db)
     return db
 
-@app.post("/voter/get_setup")
+@app.get("/voter/get_setup")
 def get_setup():
     with open("data/contest.json") as data:
         d = json.load(data)
