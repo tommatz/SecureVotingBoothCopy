@@ -48,3 +48,8 @@ class Ballot(BaseModel):
     object_id : str
     style_id: str
     contests : List[Contest]
+
+
+
+
+    
