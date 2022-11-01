@@ -6,7 +6,7 @@ const TopBar = ({darkMode, setDarkMode}) => {
   /*This return statement is what gets passed up to the App.js then to the index.js
   it is then displayed on the user's screen as the html within the return statement*/
   return (
-    <section id="topbar" className="h-[5%] w-full bg-green-600 dark:bg-slate-700 transition-colors duration-500">
+    <section id="topbar" className="h-[5%] w-full border-b-4 border-black dark:border-white bg-green-600 dark:bg-slate-700 transition-colors duration-500">
       <div className="flex flex-row h-full w-full items-center px-4 space-x-4 text-black dark:text-white transition-colors duration-500 text-sm sm:text-base md:text-xl">
         <div className="flex flex-row h-full w-full items-center justify-between font-bold">
           <p>{name}</p>
