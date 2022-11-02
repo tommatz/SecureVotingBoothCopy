@@ -1,12 +1,14 @@
 import uvicorn
 from typing import List, Union, Dict
 from fastapi import FastAPI, HTTPException, Body
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from schemas import Ballot
 from fastapi.exceptions import RequestValidationError
 
 app = FastAPI()
 db : Dict[str, Dict[str, int]] = {}
+
 
 @app.post("/voter/send_vote")
 def recieve_ballot(ballot : Ballot):
@@ -33,4 +35,4 @@ def get_tally(contest : str, candidate : str):
 # Sample for test - https://github.com/microsoft/electionguard/blob/main/data/1.0.0-preview-1/sample/hamilton-general/election_private_data/plaintext_ballots/plaintext_ballot_5a150c74-a2cb-47f6-b575-165ba8a4ce53.json
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="localhost", port=8002, reload=True, log_level="debug")
+    uvicorn.run("main:app", host="localhost", port=8006, reload=True, log_level="debug")
