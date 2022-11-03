@@ -1,4 +1,3 @@
-
 from typing import List, Union
 from pydantic import BaseModel
 from enum import Enum
@@ -48,3 +47,19 @@ class Ballot(BaseModel):
     object_id : str
     style_id: str
     contests : List[Contest]
+
+class Address(BaseModel):
+    country_area : str
+    city : str
+    postal_code : str
+    street_address : str
+
+class UserName(BaseModel):
+    first : str
+    middle : str
+    last : str
+    suffix : str
+
+class LoginInfo(BaseModel):
+    username : UserName
+    address : Address

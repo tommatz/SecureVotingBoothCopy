@@ -1,5 +1,5 @@
 from i18naddress import InvalidAddress, normalize_address 
-
+from schemas import *
 
 def validate_address(input): 
     #This function validates an address against Google's database
@@ -30,9 +30,13 @@ def validate_name(first, middle, last, suffix):
 
 
 
-def login_request(address_input, first_input, middle_input, last_input, suffix_input):
-    parsed_address = validate_address(address_input)
-    full_name = validate_name(first_input, middle_input, last_input, suffix_input)
+def login_request(address : Address, username : UserName):
+
+    address = address.dict()
+    address['country_code'] = 'US'
+
+    parsed_address = validate_address(address)
+    full_name = validate_name(username.first, username.middle, username.last, username.suffix)
 
     if not parsed_address:
         print("Address malformed")
@@ -44,9 +48,9 @@ def login_request(address_input, first_input, middle_input, last_input, suffix_i
         #Send expection back to frontend
         return
     
-    print("Success Fully Logged In")
+    print("Successfully Logged In")
     print(full_name)
-    print(parsed_address["city"]) 
+    print(parsed_address) 
     # Send success back to frontend to move to next page
 
 
@@ -58,4 +62,4 @@ test_addy =  {
     'street_address': '1600 Amphitheatre Pkwy'
 }
 
-login_request(test_addy, "Tom", "Ray", "Matz", "III")
+#login_request(test_addy, "Tom", "Ray", "Matz", "III")
