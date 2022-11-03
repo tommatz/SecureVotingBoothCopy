@@ -35,11 +35,8 @@ def get_tally(contest : str, candidate : str):
 
 @app.post("/voter/login")
 def get_login(login_info : LoginInfo):
-    success, message, name, address = login_request(login_info.address, login_info.username)
-    if not success:
-        raise HTTPException(status_code=404, detail=message)
-    else:
-        return name, address
+    return login_info.dict()
+
 
 
 # Sample for test - https://github.com/microsoft/electionguard/blob/main/data/1.0.0-preview-1/sample/hamilton-general/election_private_data/plaintext_ballots/plaintext_ballot_5a150c74-a2cb-47f6-b575-165ba8a4ce53.json
