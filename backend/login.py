@@ -39,18 +39,12 @@ def login_request(address : Address, username : UserName):
     full_name = validate_name(username.first, username.middle, username.last, username.suffix)
 
     if not parsed_address:
-        print("Address malformed")
-        #Send expection back to frontend
-        return
+        return False, "Malformed Address: Please confirm your address is typed correctly and try again.", False, False
     
     if not full_name:
-        print("Name malformed")
-        #Send expection back to frontend
-        return
+        return False, "Malformed Name: Please confirm your first, last, middle, and suffix are correct.", False, False
     
-    print("Successfully Logged In")
-    print(full_name)
-    print(parsed_address) 
+    return True, "Success", parsed_address, full_name
     # Send success back to frontend to move to next page
 
 

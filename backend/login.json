@@ -1,0 +1,17 @@
+{
+    "username":{
+      "first": "Tom",
+      "middle": "Ray",
+      "last": "Matz",
+      "suffix": "III"
+    }
+    ,
+
+    "address":{
+      "country_area" : "California",
+      "city" : "Mountain View",
+      "postal_code" : "94043",
+      "street_address" : "1600 Amphitheatre Pkwy"
+    }
+
+  }
