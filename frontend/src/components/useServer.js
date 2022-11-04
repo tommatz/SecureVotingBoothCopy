@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 
-const useServer = () => {
+const useServer = (url) => {
  
     const loaded = useRef(false);
     const [server, setServer] = useState(false); //Default is false
     useEffect(() => {
         const fetchData = async (type) => {
             try {
-                const url = "http://localhost:8002";
                 const response = await fetch(url + type);
                 const result = await response.json();
                 //console.log(result);
@@ -42,7 +41,7 @@ const useServer = () => {
 
         if(!loaded.current)
             getElection();
-    }, [server])
+    }, [server, url])
 
   return ([server, setServer]);
 }

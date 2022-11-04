@@ -1,18 +1,21 @@
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import useServer from './components/useServer';
 import TopBar from './components/TopBar';
 import Login from './components/Login';
 import Vote from './components/Vote';
 
+const url = "http://localhost:8006";
+
 function App() {
   document.body.style.overflow = "hidden" //This app is meant to fit the screen, this prevents the scrollbar from showing for the entire app (individual components may be scrollable)
 
-  const [server, setServer] = useServer();
+  const [server, setServer] = useServer(url);
   useEffect(() => {
     if(server === "Error")
       setServer("Retry")
   }, [server, setServer])
+
+  const [login, setLogin] = useState({"active" : false, "name" : "", "location" : ""})
 
   const [darkMode, setDarkMode] = useState(false); //Default is false
   
@@ -28,15 +31,10 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
       <header id='App' className={`h-screen w-screen transition-colors duration-500 ${darkMode && 'dark bg-slate-800'}`}>
-        <TopBar darkMode={darkMode} setDarkMode={setDarkMode}/>
-        <Routes>
-          <Route path='/' element={<Login />}></Route>
-          <Route path='/vote' element={<Vote contests={server["contests"]} />}></Route>
-        </Routes>
+        <TopBar darkMode={darkMode} setDarkMode={setDarkMode} login={login} setLogin={setLogin}/>
+        {login["active"] === false ? <Login url={url} setLogin={setLogin}/> : <Vote contests={server["contests"]} />}
       </header>
-    </BrowserRouter>
   );
 };
 

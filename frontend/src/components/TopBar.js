@@ -1,17 +1,12 @@
-const TopBar = ({darkMode, setDarkMode}) => {
-
-  const name = "Name/ID here"
-  const location = "Location here"
-
-  /*This return statement is what gets passed up to the App.js then to the index.js
-  it is then displayed on the user's screen as the html within the return statement*/
+const TopBar = ({darkMode, setDarkMode, login, setLogin}) => {
   return (
     <section id="topbar" className="h-[5%] w-full border-b-4 border-black dark:border-white bg-green-600 dark:bg-slate-700 transition-colors duration-500">
       <div className="flex flex-row h-full w-full items-center px-4 space-x-4 text-black dark:text-white transition-colors duration-500 text-sm sm:text-base md:text-xl">
+        {login["active"] && <button onClick={() => setLogin({...login, "active" : false})} className="font-bold text-red-600 stroke scale-150 betterhover:hover:text-red-400 transition-colors duration-500">X</button>}
         <div className="flex flex-row h-full w-full items-center justify-between font-bold">
-          <p>{name}</p>
+          {login["active"] ? <p>{login["name"]}</p> : <p></p>}
           <p>ElectionGuard</p>
-          <p>{location}</p>
+          {login["active"] ? <p>{login["location"]}</p> : <p></p>}
         </div>
         <span className="h-full w-1 bg-black dark:bg-white transition-colors duration-500" />
         <button onClick={() => setDarkMode(!darkMode)} className="betterhover:hover:scale-150 transition-transform duration-300" > 
