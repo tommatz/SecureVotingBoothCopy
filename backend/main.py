@@ -5,7 +5,6 @@ from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from schemas import *
 from fastapi.exceptions import RequestValidationError
-from login import login_request
 
 app = FastAPI()
 db : Dict[str, Dict[str, int]] = {}
@@ -34,9 +33,8 @@ def get_tally(contest : str, candidate : str):
 
 
 @app.post("/voter/login")
-def get_login(login_info : LoginInfo):
+def receive_login(login_info : LoginInfo):
     return login_info.dict()
-
 
 
 # Sample for test - https://github.com/microsoft/electionguard/blob/main/data/1.0.0-preview-1/sample/hamilton-general/election_private_data/plaintext_ballots/plaintext_ballot_5a150c74-a2cb-47f6-b575-165ba8a4ce53.json

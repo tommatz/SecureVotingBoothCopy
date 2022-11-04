@@ -8,6 +8,7 @@
     ,
 
     "address":{
+      "country_code" : "US",
       "country_area" : "California",
       "city" : "Mountain View",
       "postal_code" : "94043",

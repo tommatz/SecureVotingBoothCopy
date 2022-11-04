@@ -75,7 +75,7 @@ class LoginInfo(BaseModel):
         if v.suffix:
             full_name += v.suffix
             
-        if (not full_name.isalnum()) and (not any(char in valid_spc_chars for char in full_name)):
+        if (not full_name.isalpha()) and (not any(char in valid_spc_chars for char in full_name)):
             raise ValueError("Malformed Name: Please confirm your first, last, middle, and suffix are correct.")
         
         return v
@@ -83,7 +83,7 @@ class LoginInfo(BaseModel):
     @validator("address")
     def check_address(cls, v : Address):
         try:
-            address = normalize_address(v.dict())
+            normalize_address(v.dict())
         except InvalidAddress as e:
             raise ValueError("Malformed Address: Please confirm your address is typed correctly and try again", e.errors)
 
