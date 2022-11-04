@@ -1,8 +1,9 @@
 import uvicorn
+import json
 from typing import List, Union, Dict
 from fastapi import FastAPI, HTTPException, Body
 from pydantic import BaseModel
-from schemas import Ballot
+from schemas.contest import Ballot
 from fastapi.exceptions import RequestValidationError
 
 app = FastAPI()
@@ -20,6 +21,14 @@ def recieve_ballot(ballot : Ballot):
             db[contest_type][candidate] += ballot_selection.vote
     print(db)
     return db
+
+@app.get("/voter/get_setup")
+def get_setup():
+    with open("data/contest.json") as data:
+        d = json.load(data)
+  
+    return d
+
 
 @app.get("/voter/get_tally")
 def get_tally(contest : str, candidate : str):
