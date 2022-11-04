@@ -1,15 +1,41 @@
 import uvicorn
+import json
 from typing import List, Union, Dict
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from schemas import *
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from models import Base
+from database import SessionLocal, engine
+
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 db : Dict[str, Dict[str, int]] = {}
 
-
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+        
 @app.post("/voter/send_vote")
 def recieve_ballot(ballot : Ballot):
     for contest in ballot.contests:
@@ -22,6 +48,20 @@ def recieve_ballot(ballot : Ballot):
             db[contest_type][candidate] += ballot_selection.vote
     print(db)
     return db
+
+@app.get("/voter/get_setup")
+def get_setup():
+    with open("data/contest.json") as data:
+        d = json.load(data)
+  
+    return d
+
+@app.post("/voter/setup_contest")
+def setup_contest():
+    with open("data/contest.json") as data:
+        d = json.load(data)
+  
+    return d
 
 @app.get("/voter/get_tally")
 def get_tally(contest : str, candidate : str):

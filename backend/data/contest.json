@@ -1,0 +1,78 @@
+{
+    "contests" : [
+        {
+            "type" : "Primary",
+            "ballot_selections" : [
+                {
+                    "id" : 0,
+                    "name" : "Kanye",
+                    "party" : "Democratic",
+                    "image_uri" : null
+                },
+                {
+                    "id" : 1,
+                    "name" : "Kanye",
+                    "party" : "Republican",
+                    "image_uri" : null
+
+                },
+                {
+                    "id" : 2,
+                    "name" : "Bob Ross",
+                    "party" : "Republican",
+                    "image_uri" : null
+                }
+            ]
+        },
+        {
+            "type" : "Secondary",
+            "ballot_selections" : [
+                {
+                    "id" : 0,
+                    "name" : "Kanye",
+                    "party" : "Democratic",
+                    "image_uri" : null
+                },
+                {
+                    "id" : 1,
+                    "name" : "Kanye",
+                    "party" : "Republican",
+                    "image_uri" : null
+
+                },
+                {
+                    "id" : 2,
+                    "name" : "Bob Ross",
+                    "party" : "Republican",
+                    "image_uri" : null
+
+                }
+            ]
+        },
+        {
+            "type" : "Governer",
+            "ballot_selections" : [
+                {
+                    "id" : 0,
+                    "name" : "Kanye",
+                    "party" : "Democratic",
+                    "image_uri" : null
+                },
+                {
+                    "id" : 1,
+                    "name" : "Kanye",
+                    "party" : "Republican",
+                    "image_uri" : null
+
+                },
+                {
+                    "id" : 2,
+                    "name" : "Bob Ross",
+                    "party" : "Republican",
+                    "image_uri" : null
+
+                }
+            ]
+        }
+    ]
+}

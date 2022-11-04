@@ -49,6 +49,7 @@ class Ballot(BaseModel):
     style_id: str
     contests : List[Contest]
 
+
 class Address(BaseModel):
     country_code : str = "US"
     country_area : str
