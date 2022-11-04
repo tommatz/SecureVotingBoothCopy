@@ -75,7 +75,9 @@ class LoginInfo(BaseModel):
         
         if v.suffix:
             full_name += v.suffix
-            
+
+        full_name = full_name.strip()
+
         if (not full_name.isalpha()) and (not any(char in valid_spc_chars for char in full_name)):
             raise ValueError("Malformed Name: Please confirm your first, last, middle, and suffix are correct.")
         
