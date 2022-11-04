@@ -1,3 +1,4 @@
+from mimetypes import suffix_map
 from sqlalchemy import Column, ForeignKey, String, Integer
 from sqlalchemy.orm import relationship
 from database import Base
@@ -16,5 +17,16 @@ class BallotSelection(Base):
 
     owner = relationship("Contest", back_populates="ballot_selections")
     
-    
-    
+
+class User(Base):
+    __tablename__ = "users"
+    first = Column(String, index=True)
+    middle = Column(String, index=True)
+    last = Column(String, primary_key=True, index=True)
+    suffix = Column(String)
+
+    country_code = Column(String, index=True)
+    country_area = Column(String, index=True)
+    city = Column(String, index=True)
+    postal_code = Column(String, index=True)
+    street_address = Column(String, index=True)
