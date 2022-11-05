@@ -3,11 +3,12 @@ import { useState } from "react"
 const Vote = ({contests}) => {
 
     const cNames = Object.keys(contests) //Returns array of the contests object children names Example: ["Primary", "Secondary"]
-    const [selected, setSelected] = useState("none")
-    const [showSpoil, setShowSpoil] = useState(false)
+    const [selected, setSelected] = useState("none") //Holds the currently selected candidate data
 
+    //makeSelection is the function that controls the currently selected candidate data.
+    //It requires the contest and candidate as parameters, and then sets the selected variable with this new information.
     const makeSelection = (contest, selection) => {
-        if(selected === "none"){
+        if(selected === "none"){ //Setup selected variable based on contests on first selection
             let newSelected = {}
             for(let i = 0; i < cNames.length; i++){
                 newSelected = {...newSelected, [cNames[i]] : -1} 
@@ -44,10 +45,7 @@ const Vote = ({contests}) => {
             ))}  
         </section>
         <section id="bottombar" className="h-[5%] w-full px-4 flex flex-row-reverse items-center bg-green-600 border-t-4 border-black dark:border-white dark:bg-slate-700 transition-colors duration-500">
-            <button onClick={() => console.log(selected)} className="h-3/4 mr-4 px-4 border-2 border-black dark:border-white text-base sm:text-lg md:text-xl font-bold dark:text-white betterhover:hover:bg-green-400 dark:betterhover:hover:bg-slate-500 transition-colors duration-500">Submit</button>
-            <button className="h-3/4 mr-4 px-4 border-2 border-black dark:border-white text-base sm:text-lg md:text-xl font-bold dark:text-white betterhover:hover:bg-green-400 dark:betterhover:hover:bg-slate-500 transition-colors duration-500">Spoil</button>
-            <button onClick={() => setShowSpoil(!showSpoil)} className="h-3/4 mr-4 px-4 md:px-3 rounded-full border-2 border-black dark:border-white text-base sm:text-lg md:text-xl font-bold dark:text-white betterhover:hover:bg-green-400 dark:betterhover:hover:bg-slate-500 transition-colors duration-500">?</button>
-            <span className={`mr-4 text-sm sm:text-base md:text-xl font-bold dark:text-white transition-all duration-500  ${!showSpoil && 'opacity-0'}`}>The Spoil button will show you your ballot. (Better explanation needed)</span>
+            <button onClick={() => console.log(selected)} className="h-3/4 mr-4 px-4 border-2 border-black dark:border-white text-sm sm:text-base md:text-xl font-bold dark:text-white betterhover:hover:bg-green-400 dark:betterhover:hover:bg-slate-500 transition-colors duration-500">Submit</button>
         </section>
         </>
     )

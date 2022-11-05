@@ -13,16 +13,18 @@ const defaultLogin = {
 
 const Login = ({url, setLogin}) => {
 
-    const [fields, setFields] = useState(defaultLogin)
-    const [error, setError] = useState("")
+    const [fields, setFields] = useState(defaultLogin) //Variable to hold the current form information.
+    const [error, setError] = useState("") //Variable used to set the error message above the submit button.
 
-    const handleChange = (e) => {
+    //The handleChange function is called on every keystroke, it updates the respective field within the fields variable
+    const handleChange = (e) => { 
         const value = e.target.value
         const fName = e.target.name
         
         setFields({...fields, [fName] : {...fields[fName], "value" : value}})
     }
 
+    //onSubmit runs each time the submit button is clicked. It checks if the form is filled out correctly. If the form is filled out correctly then the postReq function is called.
     const onSubmit = (e) => {
         e.preventDefault()
 
@@ -43,9 +45,12 @@ const Login = ({url, setLogin}) => {
             setFields(errorFields)
         }
         else
-         postReq()
+            postReq()
     }
 
+    //The postReq function rearranges the login form input data to a schema that the backend accepts. It then attempts to make a POST request to the backend.
+    //Depending on the data sent to the backend, the response will either be successful or return an error (such as invalid characters in name)
+    //An error will require the user to attempt their login again. A successful login however will update the topbar and send the user to the voting page.
     const postReq = () => {
         const user = {
             "first" : fields["first"]["value"],
