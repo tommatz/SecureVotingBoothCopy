@@ -30,7 +30,7 @@ def setLogging():
     
 
 def main(): # Main driver for program
-    setLogging() # starts the logging
+    #setLogging() # starts the logging
     logging.info("Starting app")
     print("Creators: Lucas Nagle, Tom Matz, Ryan Harris, and Gerry Pasquale")
     print("Client: Dr. Chad Mourning")
@@ -42,6 +42,8 @@ def main(): # Main driver for program
     while not isSSN:
         SSN = getLogin()
         isSSN = Boolean(checkSSN(SSN))
+
+    print("Valid Social, running unit test")
     logging.info("Terminating app")
     return 0
 
