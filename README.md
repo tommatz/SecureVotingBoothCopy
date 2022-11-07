@@ -13,12 +13,12 @@ In its current state, the project is capable of logging a user in with address a
 ## Running Instructions
 
 ## Change Log
-**SPRINT 1** *10/24/2022*
+**SPRINT 1** - *10/24/2022*
 - Added backend ballot implementation with FastAPI
 - Created React template page and sample login page
 - Added early stage of login backend system
 
-*SPRINT 2* *11/7/2022*
+**SPRINT 2** - *11/7/2022*
 - Updated parameters for login and authentication
 - Connected login page to backend using FastAPI
 - Setup SQL Models for future database use
