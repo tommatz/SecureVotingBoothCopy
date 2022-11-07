@@ -13,7 +13,7 @@ from database import SessionLocal, engine
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(title="Just Bobcats")
 
 
 origins = ["*"]
@@ -36,7 +36,7 @@ def get_db():
     finally:
         db.close()
         
-@app.post("/voter/send_vote")
+@app.post("/voter/send_vote", tags=["Voting"])
 def recieve_ballot(ballot : Ballot):
     for contest in ballot.contests:
         contest_type : str = contest.object_id
@@ -49,21 +49,21 @@ def recieve_ballot(ballot : Ballot):
     print(db)
     return db
 
-@app.get("/voter/get_setup")
+@app.get("/voter/get_setup", tags=["Contest Setup"])
 def get_setup():
     with open("data/contest.json") as data:
         d = json.load(data)
   
     return d
 
-@app.post("/voter/setup_contest")
-def setup_contest():
+@app.post("/voter/setup_contest", tags=["Contest Setup"])
+def setup_contest(contest : Dict):
     with open("data/contest.json") as data:
         d = json.load(data)
   
     return d
 
-@app.get("/voter/get_tally")
+@app.get("/voter/get_tally", tags=["Results"])
 def get_tally(contest : str, candidate : str):
     if contest not in db:
         raise HTTPException(status_code=404, detail="Contest not found")
@@ -72,7 +72,7 @@ def get_tally(contest : str, candidate : str):
     return db[contest][candidate]
 
 
-@app.post("/voter/login")
+@app.post("/voter/login", tags=["Authentication"])
 def receive_login(login_info : LoginInfo):
     return login_info.dict()
 
