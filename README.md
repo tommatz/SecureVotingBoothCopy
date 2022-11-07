@@ -8,7 +8,22 @@
 ------------------
 
 ## Overview
-The goal of this project is to create secure voting booth software using an implementation of Microsoft Electionguard. 
+In its current state, the project is capable of logging a user in with address and name validation. Once a user is logged in they are able to access the dynamically created voting page and cast their ballot. Functionality for logging out is also present in the current version.
+
+## Running Instructions
+
+## Change Log
+**SPRINT 1** *10/24/2022*
+- Added backend ballot implementation with FastAPI
+- Created React template page and sample login page
+- Added early stage of login backend system
+
+*SPRINT 2* *11/7/2022*
+- Updated parameters for login and authentication
+- Connected login page to backend using FastAPI
+- Setup SQL Models for future database use
+- Completed a dynamic voting page for the frontend
+- Connected frontend voting page with backend ballot logic
 
 ## Team Members and Roles
 - [Lucas Nagle](https://github.com/Ln077218) - Team Leader
