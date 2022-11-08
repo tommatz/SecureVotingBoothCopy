@@ -21,7 +21,7 @@ The backend and the frontend should be run seperately.
 ### Backend
 
 1. Navigate to the <code>backend</code> directory
-2. Execute the <code> pip install -r requirements.txt </code> command to ensure all requiremnets are installed
+2. Execute the <code> pip install -r requirements.txt</code> command to ensure all requiremnets are installed
 3. Execute the program using <code>python main.py</code> to run the program
 
 ### Frontend
@@ -32,7 +32,7 @@ The backend and the frontend should be run seperately.
  
 ## Change Log
 
-**SPRINT 2** - *11/7/2022*
+**SPRINT 2** - *11/8/2022*
 
 - Updated parameters for login and authentication
 - Connected login page to backend using FastAPI
