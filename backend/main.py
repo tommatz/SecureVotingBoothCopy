@@ -1,7 +1,7 @@
 import uvicorn
 import json
 from typing import List, Union, Dict
-from fastapi import FastAPI, HTTPException, status, Body, Query
+from fastapi import FastAPI, HTTPException, status, Query, UploadFile
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from schemas import *
@@ -58,12 +58,14 @@ def get_setup():
   
     return d
 
-@app.post("/voter/setup_contest", tags=["Contest Setup"])
-def setup_contest(contest : Dict):
-    with open("data/contest.json") as data:
-        d = json.load(data)
-  
-    return d
+@app.post("/guardian/setup_election", tags=["Contest Setup"])
+def setup_election(manifest : UploadFile):
+    file_location = "data/contest.json"
+    print(file_location)
+    with open(file_location, "wb") as file:
+        file.write(manifest.file.read())
+        
+    return {"info" : "file sucessfully saved"}
 
 @app.get("/tally/election", tags=["Results"])
 def get_election_tally():
