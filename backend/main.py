@@ -1,7 +1,7 @@
 import uvicorn
 import json
 from typing import List, Union, Dict
-from fastapi import FastAPI, HTTPException, Body
+from fastapi import FastAPI, HTTPException, status, Body, Query
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from schemas import *
@@ -9,6 +9,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from models import Base
 from database import SessionLocal, engine
+from typing import Optional
 
 
 Base.metadata.create_all(bind=engine)
@@ -63,13 +64,19 @@ def setup_contest(contest : Dict):
   
     return d
 
-@app.get("/voter/get_tally", tags=["Results"])
-def get_tally(contest : str, candidate : str):
-    if contest not in db:
-        raise HTTPException(status_code=404, detail="Contest not found")
-    if candidate not in db[contest]:
-        raise HTTPException(status_code=404, detail="Candidate not found")
-    return db[contest][candidate]
+@app.get("/results/tally/{contest}", tags=["Results"])
+def get_contest_tally(contest : str):
+    
+    requested_contest = db.get(contest)
+    if not requested_contest:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contest not found")
+        
+    return requested_contest
+    
+
+@app.get("/results/tally/{candidate}", tags=["Results"])
+def get_candidate_tally(candidate : str):
+    return candidate
 
 
 @app.post("/voter/login", tags=["Authentication"])
