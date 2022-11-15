@@ -1,5 +1,3 @@
-import { useState, useEffect } from 'react'
-
 const SendFile = (url, file) => {
 
     const requestOptions = {
@@ -28,4 +26,4 @@ const SendFile = (url, file) => {
     return (response);
 }
 
-export default useServer
+export default SendFile
