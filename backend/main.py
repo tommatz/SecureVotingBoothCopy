@@ -47,6 +47,7 @@ def recieve_ballot(ballot : Ballot):
             candidate : str = ballot_selection.object_id
             db[contest_type].setdefault(candidate, 0)
             db[contest_type][candidate] += ballot_selection.vote
+
     print(db)
     return db
 
@@ -64,19 +65,25 @@ def setup_contest(contest : Dict):
   
     return d
 
-@app.get("/results/tally/{contest}", tags=["Results"])
-def get_contest_tally(contest : str):
-    
+@app.get("/tally/election", tags=["Results"])
+def get_election_tally():
+    return db
+
+@app.get("/tally/contest/{contest}", tags=["Results"])
+def get_tally(contest : str, candidate : Optional[str] = None):
     requested_contest = db.get(contest)
     if not requested_contest:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contest not found")
+    if candidate:
+        requested_candidate = requested_contest.get(candidate)
+        if requested_candidate:
+            return {candidate : requested_candidate}
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Candidate not found in specified contest")
         
     return requested_contest
     
 
-@app.get("/results/tally/{candidate}", tags=["Results"])
-def get_candidate_tally(candidate : str):
-    return candidate
 
 
 @app.post("/voter/login", tags=["Authentication"])

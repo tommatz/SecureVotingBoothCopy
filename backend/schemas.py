@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Union, Optional
 from pydantic import BaseModel, ValidationError, root_validator, validator
 from i18naddress import InvalidAddress, normalize_address 
 from enum import Enum
@@ -37,7 +37,7 @@ class BallotSelection(BaseModel):
     sequence_order: int
     vote: int
     is_placeholder_selection: bool
-    extended_data : Union[str, None]
+    extended_data : Optional[str]
 
 class Contest(BaseModel):
     object_id: str
@@ -61,7 +61,7 @@ class UserName(BaseModel):
     first : str
     middle : str
     last : str
-    suffix : Union[str, None] = ""
+    suffix : Optional[str] = ""
     
  
 class LoginInfo(BaseModel):
@@ -93,6 +93,6 @@ class LoginInfo(BaseModel):
         return v
 
 class TallyRetrival(BaseModel):
-    contests : Union[List[str], None] 
-    candidates : Union[List[str], None]
+    contests : Optional[List[str]]
+    candidates : Optional[List[str]]
     retrieve_all : bool = False
