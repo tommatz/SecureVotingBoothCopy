@@ -91,3 +91,8 @@ class LoginInfo(BaseModel):
             raise ValueError("Malformed Address: Please confirm your address is typed correctly and try again", e.errors)
 
         return v
+
+class TallyRetrival(BaseModel):
+    contests : Optional[List[str]]
+    candidates : Optional[List[str]]
+    retrieve_all : bool = False

@@ -1,7 +1,7 @@
 import uvicorn
 import json
 from typing import List, Union, Dict
-from fastapi import FastAPI, HTTPException, Body
+from fastapi import FastAPI, HTTPException, status, Query, UploadFile
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from schemas import *
@@ -9,6 +9,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from models import Base
 from database import SessionLocal, engine
+from typing import Optional
 
 
 Base.metadata.create_all(bind=engine)
@@ -46,6 +47,7 @@ def recieve_ballot(ballot : Ballot):
             candidate : str = ballot_selection.object_id
             db[contest_type].setdefault(candidate, 0)
             db[contest_type][candidate] += ballot_selection.vote
+
     print(db)
     return db
 
@@ -56,20 +58,34 @@ def get_setup():
   
     return d
 
-@app.post("/voter/setup_contest", tags=["Contest Setup"])
-def setup_contest(contest : Dict):
-    with open("data/contest.json") as data:
-        d = json.load(data)
-  
-    return d
+@app.post("/guardian/setup_election", tags=["Contest Setup"])
+def setup_election(manifest : UploadFile):
+    file_location = "data/contest.json"
+    print(file_location)
+    with open(file_location, "wb") as file:
+        file.write(manifest.file.read())
+        
+    return {"info" : "file sucessfully saved"}
 
-@app.get("/voter/get_tally", tags=["Results"])
-def get_tally(contest : str, candidate : str):
-    if contest not in db:
-        raise HTTPException(status_code=404, detail="Contest not found")
-    if candidate not in db[contest]:
-        raise HTTPException(status_code=404, detail="Candidate not found")
-    return db[contest][candidate]
+@app.get("/tally/election", tags=["Results"])
+def get_election_tally():
+    return db
+
+@app.get("/tally/contest/{contest}", tags=["Results"])
+def get_tally(contest : str, candidate : Optional[str] = None):
+    requested_contest = db.get(contest)
+    if not requested_contest:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contest not found")
+    if candidate:
+        requested_candidate = requested_contest.get(candidate)
+        if requested_candidate:
+            return {candidate : requested_candidate}
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Candidate not found in specified contest")
+        
+    return requested_contest
+    
+
 
 
 @app.post("/voter/login", tags=["Authentication"])
