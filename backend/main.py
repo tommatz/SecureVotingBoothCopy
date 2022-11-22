@@ -96,7 +96,6 @@ def receive_login(login_info : LoginInfo):
 
 @app.post("/voter/register", tags=["Authentication"])
 def register(login_info : LoginInfo, database: Session = Depends(get_db)):
-    print("hello")
     username = login_info.username
     address = login_info.address
 
@@ -114,22 +113,17 @@ def register(login_info : LoginInfo, database: Session = Depends(get_db)):
         street_address = address.street_address
     )
 
+    results : List[User] = database.query(User).filter(User.first == username.first).filter(User.last == username.last).all()
+
+    for result in results:
+        if new_user.fullname == result.fullname and new_user.address == result.address:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User Already Exists. Did you mean to login?")
+            
     database.add(new_user)
     database.commit()
     database.refresh(new_user)
-
-    results : List[User] = database.query(User).filter(User.first == username.first).filter(User.last == username.last).all()
-    print(results)
-
-    for result in results:
-        if new_user.fullname == result.fullname and new_user.fullname == result.address:
-            print("Found")
-
- 
-
-    #query to find if person is already registered
-        #if registered already send exception back to frontend
-        #if not registered post the user to the database, send success to frontend
+    return login_info.dict()
+    
 
 
 # Sample for test - https://github.com/microsoft/electionguard/blob/main/data/1.0.0-preview-1/sample/hamilton-general/election_private_data/plaintext_ballots/plaintext_ballot_5a150c74-a2cb-47f6-b575-165ba8a4ce53.json
