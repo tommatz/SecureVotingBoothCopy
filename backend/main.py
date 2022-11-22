@@ -119,13 +119,13 @@ def register(login_info : LoginInfo, database: Session = Depends(get_db)):
     database.refresh(new_user)
 
     results : List[User] = database.query(User).filter(User.first == username.first).filter(User.last == username.last).all()
-    no_uuid_new_user = new_user.__dict__.pop(id)
+    print(results)
 
-    for value in results:
-        #compare result with new input excluding the uuid to prevent repeats
-        no_uuid_val = value.__dict__.pop(id)
-        if no_uuid_val == no_uuid_new_user:
-            print("found")
+    for result in results:
+        if new_user.fullname == result.fullname and new_user.fullname == result.address:
+            print("Found")
+
+ 
 
     #query to find if person is already registered
         #if registered already send exception back to frontend
