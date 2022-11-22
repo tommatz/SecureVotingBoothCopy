@@ -20,9 +20,10 @@ class BallotSelection(Base):
 
 class User(Base):
     __tablename__ = "users"
+    id = Column(String, primary_key=True, index=True)
     first = Column(String, index=True)
     middle = Column(String, index=True)
-    last = Column(String, primary_key=True, index=True)
+    last = Column(String, index=True)
     suffix = Column(String)
 
     country_code = Column(String, index=True)

@@ -1,16 +1,18 @@
 import uvicorn
 import json
 from typing import List, Union, Dict
-from fastapi import FastAPI, HTTPException, status, Query, UploadFile
+from fastapi import FastAPI, HTTPException, status, Query, UploadFile, Depends
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from schemas import *
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from models import Base
+from models import User
 from database import SessionLocal, engine
 from typing import Optional
-
+from sqlalchemy.orm import Session
+import uuid
 
 Base.metadata.create_all(bind=engine)
 
@@ -87,10 +89,47 @@ def get_tally(contest : str, candidate : Optional[str] = None):
     
 
 
-
 @app.post("/voter/login", tags=["Authentication"])
 def receive_login(login_info : LoginInfo):
     return login_info.dict()
+
+
+@app.post("/voter/register", tags=["Authentication"])
+def register(login_info : LoginInfo, database: Session = Depends(get_db)):
+    print("hello")
+    username = login_info.username
+    address = login_info.address
+
+    new_user = User(
+        id = str(uuid.uuid4()),
+        first = username.first,
+        middle = username.middle,
+        last = username.last,
+        suffix = username.suffix,
+
+        country_code = address.country_code,
+        country_area = address.country_area,
+        city = address.city,
+        postal_code = address.postal_code,
+        street_address = address.street_address
+    )
+
+    database.add(new_user)
+    database.commit()
+    database.refresh(new_user)
+
+    results : List[User] = database.query(User).filter(User.first == username.first).filter(User.last == username.last).all()
+    no_uuid_new_user = new_user.__dict__.pop(id)
+
+    for value in results:
+        #compare result with new input excluding the uuid to prevent repeats
+        no_uuid_val = value.__dict__.pop(id)
+        if no_uuid_val == no_uuid_new_user:
+            print("found")
+
+    #query to find if person is already registered
+        #if registered already send exception back to frontend
+        #if not registered post the user to the database, send success to frontend
 
 
 # Sample for test - https://github.com/microsoft/electionguard/blob/main/data/1.0.0-preview-1/sample/hamilton-general/election_private_data/plaintext_ballots/plaintext_ballot_5a150c74-a2cb-47f6-b575-165ba8a4ce53.json
