@@ -11,20 +11,11 @@ const SendFile = ({url}) => {
 
     const handleSubmit = () => {
         if(!file || file.type !== "application/json") return
-console.log(file)
-const data = new FormData();
 
-  data.append("manifest", file, "manifest.json");
+        const data = new FormData();
+        data.append("manifest", file, "manifest.json");
 
-        const requestOptions = {
-            method: 'POST',
-            body: data,
-           /* headers: {
-                'content-type': file.type,
-                'content-length': `${file.size}`,
-              },*/
-        };
-        fetch(url + "/guardian/setup_election", requestOptions)
+        fetch( url + "/guardian/setup_election", {method:'POST', body: data} )
             .then(async res => {
                 const isJson = res.headers.get('content-type')?.includes('application/json');
                 const data = isJson && await res.json();
@@ -40,7 +31,7 @@ const data = new FormData();
                 return (res);
             })
             .catch(error => {
-                console.log(error)
+                console.error(error)
                 return (error);
             });
     }
