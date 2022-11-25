@@ -90,8 +90,32 @@ def get_tally(contest : str, candidate : Optional[str] = None):
 
 
 @app.post("/voter/login", tags=["Authentication"])
-def receive_login(login_info : LoginInfo):
-    return login_info.dict()
+def receive_login(login_info : LoginInfo, database: Session = Depends(get_db)):
+
+    username = login_info.username
+    address = login_info.address
+
+    new_user = User(
+        id = "holder", #This value is not used for query
+        first = username.first,
+        middle = username.middle,
+        last = username.last,
+        suffix = username.suffix,
+
+        country_code = address.country_code,
+        country_area = address.country_area,
+        city = address.city,
+        postal_code = address.postal_code,
+        street_address = address.street_address
+    )
+
+    results : List[User] = database.query(User).filter(User.first == username.first).filter(User.last == username.last).all()
+
+    for result in results:
+        if new_user.fullname == result.fullname and new_user.address == result.address:
+            return login_info.dict()
+        
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User is not registered to vote.")
 
 
 @app.post("/voter/register", tags=["Authentication"])
