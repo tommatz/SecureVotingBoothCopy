@@ -1,5 +1,5 @@
 from mimetypes import suffix_map
-from sqlalchemy import Column, ForeignKey, String, Integer
+from sqlalchemy import Column, ForeignKey, String, Integer, Identity
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -11,8 +11,12 @@ class Contest(Base):
 
 class BallotSelection(Base):
     __tablename__ = "ballot_selections"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
+    order = Column(Integer, primary_key=True)
+    id = Column(Integer, index=True)
+    name = Column(String, index=True)
+    party=Column(String, index=True)
+    votes = Column(Integer, default=0)
+    image_uri = Column(String)
     owner_type = Column(String, ForeignKey("candidates.type"))
 
     owner = relationship("Contest", back_populates="ballot_selections")

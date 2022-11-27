@@ -33,23 +33,59 @@ class Contests(BaseModel):
     contests: List[Union[CandidateContest, OptionContest]]
     
 class BallotSelection(BaseModel):
-    object_id: str
-    sequence_order: int
-    vote: int
-    is_placeholder_selection: bool
-    extended_data : Optional[str]
+    id : int
+    vote : bool = False
 
 class Contest(BaseModel):
-    object_id: str
-    sequence_order: int
+    type: str
     ballot_selections: List[BallotSelection]
 
 class Ballot(BaseModel):
-    object_id : str
-    style_id: str
     contests : List[Contest]
+    
 
+class DBBallotSelection(BaseModel):
+    id : int
+    name : str
+    party : str
+    image_uri : str
+    
+    class Config:
+        orm_mode = True
+    
+class DBContest(BaseModel):
+    type : str
+    ballot_selections : List[DBBallotSelection]
+    
+    class Config:
+        orm_mode = True 
+class DBContests(BaseModel):
+    contests : List[DBContest]
+    
+    class Config:
+        orm_mode=True
 
+class DBTallySelection(BaseModel):
+    name : str
+    party : str
+    votes: int
+    
+    class Config:
+        orm_mode = True
+        
+class DBTally(BaseModel):
+    type : str
+    ballot_selections : List[DBTallySelection]
+    
+    class Config:
+        orm_mode = True 
+                
+class DBTallyContests(BaseModel):
+    contests : List[DBTally]
+    
+    class Config:
+        orm_mode = True
+        
 class Address(BaseModel):
     country_code : str = "US"
     country_area : str
