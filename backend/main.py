@@ -85,18 +85,17 @@ def setup_election(manifest : UploadFile = File(...), database : Session = Depen
 def get_election_tally(database : Session = Depends(get_db)):
     return DBTallyContests(contests=database.query(Contest).all())
 
-@app.get("/tally/contest/{contest}", tags=["Results"])
-def get_tally(contest : str, candidate : Optional[str] = None):
-    requested_contest = db.get(contest)
+@app.get("/tally/contest/{contest}", response_model=Union[DBTally, DBTallySelection], tags=["Results"])
+def get_tally(contest : str, candidate : Optional[str] = None, database : Session = Depends(get_db)):
+    requested_contest = database.query(Contest).get(contest)
     if not requested_contest:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contest not found")
     if candidate:
-        requested_candidate = requested_contest.get(candidate)
-        if requested_candidate:
-            return {candidate : requested_candidate}
+        requested_candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == requested_contest.type).filter(BallotSelection.name == candidate).one()
+        if requested_contest:
+            return requested_candidate
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Candidate not found in specified contest")
-        
     return requested_contest
     
 
