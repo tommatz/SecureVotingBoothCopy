@@ -30,7 +30,6 @@ app.add_middleware(
 )
 
 
-db : Dict[str, Dict[str, int]] = {}
 
 def get_db():
     db = SessionLocal()
