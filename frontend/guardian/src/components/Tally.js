@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react"
 
 const Tally = ({ contests, url }) => {
 
+    const [refreshTally, setRefreshTally] = useState(false)
     const debounce = useRef(false)
     const [tally, setTally] = useState("")
     useEffect(() => {
@@ -25,7 +26,7 @@ const Tally = ({ contests, url }) => {
 
         if(!debounce.current)
             getTally()
-    }, [url])
+    }, [url, refreshTally])
 
     const [selected, setSelected] = useState(Object.keys(contests)[0])
     const [total, setTotal] = useState (0)
@@ -49,7 +50,7 @@ const Tally = ({ contests, url }) => {
 
     return (
         <section id="tally" className="h-full w-full flex flex-row">
-            <section id="tally_nav" className="h-full w-[15%] bg-gradient-to-r from-slate-700 to-slate-500 border-r-2 border-black shadow-xl shadow-black text-white">
+            <section id="tally_nav" className="h-full w-[15%] bg-gradient-to-r from-green-700 to-green-500 border-r-2 border-black shadow-xl shadow-black text-white">
                 <div className="h-full w-full flex flex-col space-y-4 p-4">
                     <h1 className="mx-auto text-2xl font-bold">Election Tally</h1>
                     {/*<p className="mx-auto text-xl">Election in progress</p>*/}
@@ -57,12 +58,15 @@ const Tally = ({ contests, url }) => {
                     {Object.keys(contests).map((contest) => (
                         <p key={contest} onClick={() => setSelected(contest)} className={"text-xl w-fit transition-all duration-300 " + (selected === contest ? "cursor-default text-slate-300" : "cursor-pointer betterhover:hover:text-gray-400")}>{(selected === contest ? "> " : "• " ) + contest}</p>
                     ))}
+                    <button onClick={() => setRefreshTally(!refreshTally)}>
+                        Refresh
+                    </button>
                 </div>
             </section>
 
             <section id="tally_content" className="h-full w-[85%] p-4">
                 <div className="flex flex-col h-full w-full space-y-4">
-                    <div className="p-4 text-white text-center bg-gradient-to-l from-slate-700 to-slate-500 rounded-xl border-2 border-black shadow-md shadow-black">
+                    <div className="p-4 text-white text-center bg-gradient-to-l from-green-700 to-green-500 rounded-xl border-2 border-black shadow-md shadow-black">
                         <h1 className="text-2xl font-bold">{selected} Contest</h1>
                         <p>Total Votes: {total}</p>
                     </div>
