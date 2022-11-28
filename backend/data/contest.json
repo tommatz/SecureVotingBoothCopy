@@ -50,7 +50,7 @@
             ]
         },
         {
-            "type" : "Governer",
+            "type" : "Governor",
             "ballot_selections" : [
                 {
                     "id" : 0,
