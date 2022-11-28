@@ -1,5 +1,6 @@
 import useServer from "./components/useServer";
 import Tally from "./components/Tally";
+import Upload from "./components/Upload";
 //import Template from "./components/Template";
 import { useEffect } from "react";
 
@@ -25,7 +26,7 @@ function App() {
 
   return (
     <header id="App" className="h-screen w-screen">
-        {Object.keys(server["contests"]).length !== 0 ? <Tally contests={server["contests"]} url={url} /> : <p>Upload Election JSON File Screen Here</p>}
+        {Object.keys(server["contests"]).length !== 0 ? <Tally contests={server["contests"]} url={url} /> : <Upload url={url} />}
     </header>
   );
 }
