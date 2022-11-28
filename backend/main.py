@@ -91,7 +91,7 @@ def flush_election(database : Session = Depends(get_db)):
     database.commit()
     
 @app.get("/clear/user", tags=["Delete"])
-def flush_election(database : Session = Depends(get_db)):
+def flush_users(database : Session = Depends(get_db)):
     database.query(User).delete()
     database.commit()    
     
