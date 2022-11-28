@@ -11,8 +11,8 @@ class ContactItem(BaseModel):
 
 class ContactInformation(BaseModel):
     address_line : Optional[List[str]]
-    email: Optional[List[ContactItem]] = Field(None, title='Email(s)')
-    phone: Optional[List[ContactItem]] = Field(None, title='Phone Number(s)')
+    email: Optional[List[ContactItem]]
+    phone: Optional[List[ContactItem]]
     name : Optional[str]
 
 

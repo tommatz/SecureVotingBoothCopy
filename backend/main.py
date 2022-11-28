@@ -16,7 +16,7 @@ import uuid
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Just Bobcats", debug=True)
+app = FastAPI(title="Just Bobcats")
 
 
 origins = ["*"]
@@ -59,22 +59,21 @@ def get_setup(database : Session = Depends(get_db)):
 def setup_election(manifest : UploadFile = File(...), database : Session = Depends(get_db)):
     
     
-    manifest = json.load(manifest.file)
+    manifest : DBContests = DBContests(**json.load(manifest.file))
     
-    contests = manifest["contests"]
+    contests = manifest.contests
     
     for contest in contests:
         ballot_selections = []
-        db_contest = Contest(type=contest["type"])
+        db_contest = Contest(type=contest.type)
         
-        for selections in contest["ballot_selections"]:
-            ballot_selections.append(BallotSelection(id=selections["id"], name=selections["name"], party=selections["party"], image_uri=selections["image_uri"]))
-        database.add_all(ballot_selections)
+        for selections in contest.ballot_selections:
+            ballot_selections.append(BallotSelection(id=selections.id, name=selections.name, party=selections.party, image_uri=selections.image_uri))
+
         db_contest.ballot_selections.extend(ballot_selections)
         database.add(db_contest)
-        database.commit()
-        database.refresh(db_contest)
         ballot_selections = []
+    database.commit()
             
         
         
@@ -99,14 +98,13 @@ def get_tally(contest : str, candidate : Optional[str] = None, database : Sessio
     
 
 
-@app.post("/voter/login", tags=["Authentication"])
+@app.post("/voter/login", response_model=LoginInfo, tags=["Authentication"])
 def receive_login(login_info : LoginInfo, database: Session = Depends(get_db)):
 
     username = login_info.username
     address = login_info.address
 
-    new_user = User(
-        id = "holder", #This value is not used for query
+    login_user = User(
         first = username.first,
         middle = username.middle,
         last = username.last,
@@ -122,13 +120,13 @@ def receive_login(login_info : LoginInfo, database: Session = Depends(get_db)):
     results : List[User] = database.query(User).filter(User.first == username.first).filter(User.last == username.last).all()
 
     for result in results:
-        if new_user.fullname == result.fullname and new_user.address == result.address:
-            return login_info.dict()
+        if login_user.fullname == result.fullname and login_user.address == result.address:
+            return login_info
         
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User is not registered to vote.")
 
 
-@app.post("/voter/register", tags=["Authentication"])
+@app.post("/voter/register", response_model=LoginInfo, response_model_exclude={"id"}, tags=["Authentication"])
 def register(login_info : LoginInfo, database: Session = Depends(get_db)):
     username = login_info.username
     address = login_info.address
@@ -156,7 +154,8 @@ def register(login_info : LoginInfo, database: Session = Depends(get_db)):
     database.add(new_user)
     database.commit()
     database.refresh(new_user)
-    return login_info.dict()
+    
+    return login_info
     
 
 
