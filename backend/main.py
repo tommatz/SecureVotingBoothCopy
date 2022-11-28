@@ -79,10 +79,23 @@ def setup_election(manifest : UploadFile = File(...), database : Session = Depen
         
     return {"info" : "file sucessfully saved"}
 
+
+
 @app.get("/tally/election", response_model=DBTallyContests, tags=["Results"])
 def get_election_tally(database : Session = Depends(get_db)):
     return DBTallyContests(contests=database.query(Contest).all())
 
+@app.get("/clear/election", tags=["Delete"])
+def flush_election(database : Session = Depends(get_db)):
+    database.query(Contest).delete()
+    database.commit()
+    
+@app.get("/clear/user", tags=["Delete"])
+def flush_election(database : Session = Depends(get_db)):
+    database.query(User).delete()
+    database.commit()    
+    
+    
 @app.get("/tally/contest/{contest}", response_model=Union[DBTally, DBTallySelection], tags=["Results"])
 def get_tally(contest : str, candidate : Optional[str] = None, database : Session = Depends(get_db)):
     requested_contest = database.query(Contest).get(contest)
