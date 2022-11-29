@@ -9,7 +9,6 @@ const useServer = (url) => {
             try {
                 const response = await fetch(url + type);
                 const result = await response.json();
-                //console.log(result);
                 return result;
             } catch(error) {
                 console.error(error);
@@ -35,7 +34,6 @@ const useServer = (url) => {
                 "contests" : contests
             };
 
-            //console.log(final);
             setServer(final);
         }
 
