@@ -65,9 +65,7 @@ const Tally = ({ contests, url }) => {
                     {Object.keys(contests).map((contest) => (
                         <p key={contest} onClick={() => setSelected(contest)} className={"text-xl w-fit transition-all duration-300 " + (selected === contest ? "cursor-default text-slate-300" : "cursor-pointer betterhover:hover:text-gray-400")}>{(selected === contest ? "> " : "• " ) + contest}</p>
                     ))}
-                    <button onClick={() => setRefreshTally(!refreshTally)}>
-                        Refresh
-                    </button>
+                    
                 </div>
             </section>
 
@@ -76,11 +74,16 @@ const Tally = ({ contests, url }) => {
                     <div className="p-4 text-white text-center bg-gradient-to-l from-green-700 to-green-500 rounded-xl border-2 border-black shadow-md shadow-black">
                         <h1 className="text-2xl font-bold">{selected} Contest</h1>
                         <p>Total Votes: {total}</p>
+
+                        <button className="text-white cursor-pointer betterhover:hover:text-gray-400 font-bold my-5 b-2 b-black  " onClick={() => setRefreshTally(!refreshTally)}>
+                        Refresh Tally
+                    </button>
+
                     </div>
 
                     {(Object.keys(tally).length !== 0 && tally[selected]) ?
                         <div className="flex flex-col border-2 border-black">
-                            <div className="flex flex-row bg-slate-300 px-2 space-x-2 text-base sm:text-lg md:text-xl">
+                            <div className="flex flex-row bg-green-300 px-2 space-x-2 text-base sm:text-lg md:text-xl">
                                 <div className="w-2/3 flex flex-row space-x-2">
                                     <p className="font-bold">#</p>
                                     <span className="h-full w-0.5 bg-black"></span>
