@@ -1,22 +1,22 @@
 import { useState } from "react";
 
-const SendFile = ({url}) => {
+const SendFile = ({ url }) => {
 
     const [file, setFile] = useState()
     const [serverResponse, setResponse] = useState("")
 
     const handleChange = (e) => {
-        if (e.target.files) 
+        if (e.target.files)
             setFile(e.target.files[0])
     }
 
     const handleSubmit = () => {
-        if(!file || file.type !== "application/json") return
+        if (!file || file.type !== "application/json") return
 
         const data = new FormData();
         data.append("manifest", file, "manifest.json");
 
-        fetch( url + "/guardian/setup_election", {method:'POST', body: data} )
+        fetch(url + "/guardian/setup_election", { method: 'POST', body: data })
             .then(async res => {
                 const isJson = res.headers.get('content-type')?.includes('application/json');
                 const data = isJson && await res.json();
@@ -38,7 +38,7 @@ const SendFile = ({url}) => {
                 return (error);
             });
 
-        
+
     }
 
     return (
@@ -56,7 +56,7 @@ const SendFile = ({url}) => {
 
             <p className="text-lg font-bold">{serverResponse}</p>
         </div>
-    )    
+    )
 }
 
 export default SendFile

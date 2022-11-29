@@ -1,7 +1,7 @@
 import SendFile from "./SendFile"
 import TopBar from "./TopBar"
 
-const Upload = ({ url }) => {
+const Upload = ({ url, setShow }) => {
     return (
         <section id="upload" className="h-full w-full">
             <TopBar />
@@ -10,6 +10,9 @@ const Upload = ({ url }) => {
                 <div className="m-auto text-center space-y-12"> {/* This div is needed to center the items inside it using m-auto (margins auto) */}
                     <h1 className="text-4xl font-bold">Manifest Upload Page</h1>
                     <SendFile url={url} />
+                    <button onClick={() => setShow("landing")} className={"text-xl transition-colors duration-300 cursor-pointer cursor-pointer betterhover:hover:text-gray-700"}>
+                        Back to Landing Page
+                    </button>
                 </div>
             </section>
 
