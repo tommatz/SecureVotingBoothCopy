@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 
-const Tally = ({ contests, url }) => {
+const Tally = ({ contests, url, setShow}) => {
 
     const debounce = useRef(false)
     const [tally, setTally] = useState("")
@@ -44,6 +44,10 @@ const Tally = ({ contests, url }) => {
         setTotal(sum)
     }, [tally, selected])
 
+    const done = () => {
+        setShow({"landing": true, "tally": false, "upload": false});
+    }
+
     if(tally === "" || tally === "Error"){
         return (
             <section id="tally" className="h-full w-full flex flex-col">
@@ -64,7 +68,13 @@ const Tally = ({ contests, url }) => {
                     {Object.keys(contests).map((contest) => (
                         <p key={contest} onClick={() => setSelected(contest)} className={"text-xl w-fit transition-all duration-300 " + (selected === contest ? "cursor-default text-slate-300" : "cursor-pointer betterhover:hover:text-gray-400")}>{(selected === contest ? "> " : "• " ) + contest}</p>
                     ))}
+
+                    <button onClick={done} className={"text-xl h-[100%] w-fit transition-all duration-300 cursor-default text-slate-300   cursor-pointer betterhover:hover:text-gray-400"}>
+                        Back to Landing Page
+                    </button>
                 </div>
+                
+                
             </section>
 
             <section id="tally_content" className="h-full w-[85%] p-4">

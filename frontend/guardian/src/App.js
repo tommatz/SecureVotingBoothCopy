@@ -37,10 +37,10 @@ function App() {
   return (
     <header id="App" className="h-screen w-screen">
       
-        {/* {Object.keys(server["contests"]).length !== 0 ? <Tally contests={server["contests"]} url={url} /> : <Upload url={url} />} */}
-        {show["landing"]===true ? <Landing setShow={setShow} /> : <></>}
+         {Object.keys(server["contests"]).length !== 0 ? <Tally contests={server["contests"]} url={url} /> : <Upload url={url} />} 
+        {/* {show["landing"]===true ? <Landing setShow={setShow} /> : <></>}
          {show["upload"] === true ? <Upload url={url} setShow={setShow}/> : <></>}
-        {show["tally"] === true ? <Tally url={url} setShow={setShow} /> : <></>} 
+        {show["tally"] === true ? <Tally contests={server["constests"]} url={url} setShow={setShow} /> : <></>}  */}
        
         
     </header>
