@@ -1,17 +1,27 @@
 import useServer from "./components/useServer";
 import Tally from "./components/Tally";
 import Upload from "./components/Upload";
+import Landing from "./components/landing";
 //import Template from "./components/Template";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const url = "http://localhost:8006";
 
 function App() {
+  document.body.style.overflow ="hidden" // prevent screen scroll
+
   const [server, setServer] = useServer(url);
   useEffect(() => {
     if(server === "Error")
       setServer("Retry")
   }, [server, setServer])
+
+  const [show, setShow] = useState({"landing": true, "tally": false, "upload": false});
+  /* const [upload, setUpload] = useState(false);
+  const [landing, setLanding] = useState(true);
+  useEffect(() => [tally])
+  useEffect(() => [upload])
+  useEffect(() => [landing]) */
 
   if(!server || server === false || server === "Error" || server === "Retry") {//Loading page while frontend is fetching server data
     return (
@@ -26,7 +36,13 @@ function App() {
 
   return (
     <header id="App" className="h-screen w-screen">
-        {Object.keys(server["contests"]).length !== 0 ? <Tally contests={server["contests"]} url={url} /> : <Upload url={url} />}
+      
+        {/* {Object.keys(server["contests"]).length !== 0 ? <Tally contests={server["contests"]} url={url} /> : <Upload url={url} />} */}
+        {show["landing"]===true ? <Landing setShow={setShow} /> : <></>}
+         {show["upload"] === true ? <Upload url={url} setShow={setShow}/> : <></>}
+        {show["tally"] === true ? <Tally url={url} setShow={setShow} /> : <></>} 
+       
+        
     </header>
   );
 }

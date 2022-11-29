@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const SendFile = ({url}) => {
+const SendFile = ({url,setSend}) => {
 
     const [file, setFile] = useState()
     const [serverResponse, setResponse] = useState("")
@@ -30,6 +30,7 @@ const SendFile = ({url}) => {
 
                 console.log(res)
                 setResponse("Sucessfully uploaded " + file.name + " to the server!")
+                setSend({"Close":true, "keep":false})
                 return (res);
             })
             .catch(error => {
