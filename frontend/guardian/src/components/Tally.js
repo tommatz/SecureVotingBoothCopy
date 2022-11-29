@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react"
 
 const Tally = ({ contests, url, setShow }) => {
 
+    const [refreshTally, setRefreshTally] = useState(false)
     const debounce = useRef(false)
     const [tally, setTally] = useState("")
     useEffect(() => {
@@ -31,7 +32,7 @@ const Tally = ({ contests, url, setShow }) => {
 
         if (!debounce.current)
             getTally()
-    }, [url])
+    }, [url, refreshTally])
 
     const [selected, setSelected] = useState(Object.keys(contests)[0])
     const [total, setTotal] = useState(0)
@@ -56,7 +57,7 @@ const Tally = ({ contests, url, setShow }) => {
 
     return (
         <section id="tally" className="h-full w-full flex flex-row">
-            <section id="tally_nav" className="h-full w-[15%] bg-gradient-to-r from-slate-700 to-slate-500 border-r-2 border-black shadow-xl shadow-black text-white">
+            <section id="tally_nav" className="h-full w-[15%] bg-gradient-to-r from-green-700 to-green-500 border-r-2 border-black shadow-xl shadow-black text-white">
                 <div className="h-full w-full flex flex-col space-y-4 p-4">
                     <h1 className="mx-auto text-2xl font-bold">Election Tally</h1>
                     {/*<p className="mx-auto text-xl">Election in progress</p>*/}
@@ -75,14 +76,19 @@ const Tally = ({ contests, url, setShow }) => {
 
             <section id="tally_content" className="h-full w-[85%] p-4">
                 <div className="flex flex-col h-full w-full space-y-4">
-                    <div className="p-4 text-white text-center bg-gradient-to-l from-slate-700 to-slate-500 rounded-xl border-2 border-black shadow-md shadow-black">
+                    <div className="p-4 text-white text-center bg-gradient-to-l from-green-700 to-green-500 rounded-xl border-2 border-black shadow-md shadow-black">
                         <h1 className="text-2xl font-bold">{selected} Contest</h1>
                         <p>Total Votes: {total}</p>
+
+                        <button className="text-white cursor-pointer betterhover:hover:text-gray-400 font-bold my-5 b-2 b-black  " onClick={() => setRefreshTally(!refreshTally)}>
+                        Refresh Tally
+                    </button>
+
                     </div>
 
                     {(Object.keys(tally).length !== 0 && tally[selected]) ?
                         <div className="flex flex-col border-2 border-black">
-                            <div className="flex flex-row bg-slate-300 px-2 space-x-2 text-base sm:text-lg md:text-xl">
+                            <div className="flex flex-row bg-green-300 px-2 space-x-2 text-base sm:text-lg md:text-xl">
                                 <div className="w-2/3 flex flex-row space-x-2">
                                     <p className="font-bold">#</p>
                                     <span className="h-full w-0.5 bg-black"></span>
