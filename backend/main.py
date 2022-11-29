@@ -87,7 +87,8 @@ def get_election_tally(database : Session = Depends(get_db)):
 
 @app.get("/clear/election", tags=["Delete"])
 def flush_election(database : Session = Depends(get_db)):
-    database.query(Contest).delete()
+    for contest in database.query(Contest).all():
+        database.delete(contest)
     database.commit()
     
 @app.get("/clear/user", tags=["Delete"])
