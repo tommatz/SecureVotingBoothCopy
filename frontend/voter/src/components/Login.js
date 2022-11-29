@@ -78,8 +78,8 @@ const Login = ({ url, setLogin }) => {
 
                 // check for error response
                 if (!response.ok) {
-                    // get error message from body or default to response status
-                    const error = (data && typeof (data) == "object" && data["detail"][0]["msg"]) || data || response.status;
+                    // get error message from the backend response or default to response status (i.e. 404 Not Found)
+                    const error = (data && typeof (data) == "object" && data["detail"][0]["msg"]) || (data && typeof (data) == "object" && data["detail"]) || response.status;
                     return Promise.reject(error);
                 }
 

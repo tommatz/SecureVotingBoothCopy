@@ -19,8 +19,14 @@ const Tally = ({ contests, url }) => {
 
         const getTally = async () => {
             debounce.current = true
-            const tal = await fetchData("/tally/election")
-            setTally(tal)
+            const setup = await fetchData("/tally/election")
+
+            let temp = {}; //Variable to change the backend tally data to the schema used by the frontend
+            for(let i = 0; i < setup["contests"].length; i++)
+                if(setup["contests"][i]["type"] !== null && setup["contests"][i]["ballot_selections"] !== null)
+                    temp = {...temp, [setup["contests"][i]["type"]] : setup["contests"][i]["ballot_selections"]};
+
+            setTally(temp)
             debounce.current = false
         }
 
@@ -31,10 +37,11 @@ const Tally = ({ contests, url }) => {
     const [selected, setSelected] = useState(Object.keys(contests)[0])
     const [total, setTotal] = useState (0)
     useEffect(() => {
-        if(typeof(tally) !== "object" || Object.keys(tally).length === 0) return 
+        if(typeof(tally) !== "object" || Object.keys(tally).length === 0) 
+            return 
 
         let sum = 0
-        Object.keys(tally[selected]).map((candidate) => (sum += tally[selected][candidate]))
+        Object.keys(tally[selected]).map((candidateIndex) => (sum += tally[selected][candidateIndex]["votes"]))
         setTotal(sum)
     }, [tally, selected])
 
@@ -83,15 +90,15 @@ const Tally = ({ contests, url }) => {
                                 <p className="w-1/3">Tally</p>
                             </div>
 
-                            {Object.keys(tally[selected]).sort((a, b) => tally[selected][b] - tally[selected][a]).map((candidate, index) => (
-                                <div key={candidate} className="flex flex-row px-2 space-x-2 border-t-2 border-black text-base sm:text-lg md:text-xl">
+                            {Object.keys(tally[selected]).sort((a, b) => tally[selected][b]["votes"] - tally[selected][a]["votes"]).map((candidateIndex) => (
+                                <div key={candidateIndex} className="flex flex-row px-2 space-x-2 border-t-2 border-black text-base sm:text-lg md:text-xl">
                                     <div className="w-2/3 flex flex-row space-x-2">
-                                        <p className="font-bold">{(index+1)}</p>
+                                        <p className="font-bold">{(Number(candidateIndex) + 1)}</p> {/* Had to explicitly make candidateIndex a number because it was seen as a string  */}
                                         <span className="h-full w-0.5 bg-black"></span>
-                                        <p>{candidate}</p>
+                                        <p>{tally[selected][candidateIndex]["name"]}</p>
                                     </div>
                                     <span className="h-full w-0.5 bg-black"></span>
-                                    <p className="w-1/3">{tally[selected][candidate]}</p>
+                                    <p className="w-1/3">{tally[selected][candidateIndex]["votes"]}</p>
                                 </div>
                             ))}
                         </div>
