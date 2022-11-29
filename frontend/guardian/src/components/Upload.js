@@ -1,14 +1,7 @@
-import { useState } from "react";
 import SendFile from "./SendFile"
 import TopBar from "./TopBar"
 
 const Upload = ({ url, setShow }) => {
-    const [send, setSend] = useState({"Close":false, "keep":true});
-
-    const complete = () => { /// need to fix
-        setShow({"landing": true, "tally": false, "upload": false});
-        return(<></>)
-    }
     return (
         <section id="upload" className="h-full w-full">
             <TopBar />
@@ -16,8 +9,10 @@ const Upload = ({ url, setShow }) => {
             <section id="upload-content" className="h-[90%] w-full flex flex-col">
                 <div className="m-auto text-center space-y-12"> {/* This div is needed to center the items inside it using m-auto (margins auto) */}
                     <h1 className="text-4xl font-bold">Manifest Upload Page</h1>
-                    <SendFile url={url} setSend={setSend} />
-                    {send["Close"] === true && send["keep"] === false ? complete : <></>}
+                    <SendFile url={url} />
+                    <button onClick={() => setShow("landing")} className={"text-xl transition-colors duration-300 cursor-pointer cursor-pointer betterhover:hover:text-gray-700"}>
+                        Back to Landing Page
+                    </button>
                 </div>
             </section>
 

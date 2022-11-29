@@ -8,22 +8,16 @@ import { useEffect, useState } from "react";
 const url = "http://localhost:8006";
 
 function App() {
-  document.body.style.overflow ="hidden" // prevent screen scroll
 
   const [server, setServer] = useServer(url);
   useEffect(() => {
-    if(server === "Error")
+    if (server === "Error")
       setServer("Retry")
   }, [server, setServer])
 
-  const [show, setShow] = useState({"landing": true, "tally": false, "upload": false});
-  /* const [upload, setUpload] = useState(false);
-  const [landing, setLanding] = useState(true);
-  useEffect(() => [tally])
-  useEffect(() => [upload])
-  useEffect(() => [landing]) */
+  const [show, setShow] = useState("landing");
 
-  if(!server || server === false || server === "Error" || server === "Retry") {//Loading page while frontend is fetching server data
+  if (!server || server === false || server === "Error" || server === "Retry") {//Loading page while frontend is fetching server data
     return (
       <header id='App' className='h-screen w-screen flex flex-col'>
         <section id="loading" className="m-auto text-center">
@@ -36,13 +30,8 @@ function App() {
 
   return (
     <header id="App" className="h-screen w-screen">
-      
-         {Object.keys(server["contests"]).length !== 0 ? <Tally contests={server["contests"]} url={url} /> : <Upload url={url} />} 
-        {/* {show["landing"]===true ? <Landing setShow={setShow} /> : <></>}
-         {show["upload"] === true ? <Upload url={url} setShow={setShow}/> : <></>}
-        {show["tally"] === true ? <Tally contests={server["constests"]} url={url} setShow={setShow} /> : <></>}  */}
-       
-        
+      {/*Object.keys(server["contests"]).length !== 0 ? <Tally contests={server["contests"]} url={url} /> : <Upload url={url} />*/}
+      {show === "landing" ? <Landing setShow={setShow} /> : show === "upload" ? <Upload url={url} setShow={setShow} /> : <Tally contests={server["contests"]} url={url} setShow={setShow} />}
     </header>
   );
 }

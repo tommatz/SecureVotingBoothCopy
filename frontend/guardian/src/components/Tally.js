@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 
-const Tally = ({ contests, url, setShow}) => {
+const Tally = ({ contests, url, setShow }) => {
 
     const debounce = useRef(false)
     const [tally, setTally] = useState("")
@@ -21,34 +21,30 @@ const Tally = ({ contests, url, setShow}) => {
             const setup = await fetchData("/tally/election")
 
             let temp = {}; //Variable to change the backend tally data to the schema used by the frontend
-            for(let i = 0; i < setup["contests"].length; i++)
-                if(setup["contests"][i]["type"] !== null && setup["contests"][i]["ballot_selections"] !== null)
-                    temp = {...temp, [setup["contests"][i]["type"]] : setup["contests"][i]["ballot_selections"]};
+            for (let i = 0; i < setup["contests"].length; i++)
+                if (setup["contests"][i]["type"] !== null && setup["contests"][i]["ballot_selections"] !== null)
+                    temp = { ...temp, [setup["contests"][i]["type"]]: setup["contests"][i]["ballot_selections"] };
 
             setTally(temp)
             debounce.current = false
         }
 
-        if(!debounce.current)
+        if (!debounce.current)
             getTally()
     }, [url])
 
     const [selected, setSelected] = useState(Object.keys(contests)[0])
-    const [total, setTotal] = useState (0)
+    const [total, setTotal] = useState(0)
     useEffect(() => {
-        if(typeof(tally) !== "object" || Object.keys(tally).length === 0) 
-            return 
+        if (typeof (tally) !== "object" || Object.keys(tally).length === 0)
+            return
 
         let sum = 0
         Object.keys(tally[selected]).map((candidateIndex) => (sum += tally[selected][candidateIndex]["votes"]))
         setTotal(sum)
     }, [tally, selected])
 
-    const done = () => {
-        setShow({"landing": true, "tally": false, "upload": false});
-    }
-
-    if(tally === "" || tally === "Error"){
+    if (tally === "" || tally === "Error") {
         return (
             <section id="tally" className="h-full w-full flex flex-col">
                 <div className="m-auto text-center text-black dark:text-white transition-colors duration-500">
@@ -66,15 +62,15 @@ const Tally = ({ contests, url, setShow}) => {
                     {/*<p className="mx-auto text-xl">Election in progress</p>*/}
                     <h2 className="text-2xl font-bold">Contests</h2>
                     {Object.keys(contests).map((contest) => (
-                        <p key={contest} onClick={() => setSelected(contest)} className={"text-xl w-fit transition-all duration-300 " + (selected === contest ? "cursor-default text-slate-300" : "cursor-pointer betterhover:hover:text-gray-400")}>{(selected === contest ? "> " : "• " ) + contest}</p>
+                        <p key={contest} onClick={() => setSelected(contest)} className={"text-xl w-fit transition-all duration-300 " + (selected === contest ? "cursor-default text-slate-300" : "cursor-pointer betterhover:hover:text-gray-400")}>{(selected === contest ? "> " : "• ") + contest}</p>
                     ))}
 
-                    <button onClick={done} className={"text-xl h-[100%] w-fit transition-all duration-300 cursor-default text-slate-300   cursor-pointer betterhover:hover:text-gray-400"}>
+                    <button onClick={() => setShow("landing")} className={"text-xl transition-colors duration-300 cursor-pointer text-white cursor-pointer betterhover:hover:text-gray-300"}>
                         Back to Landing Page
                     </button>
                 </div>
-                
-                
+
+
             </section>
 
             <section id="tally_content" className="h-full w-[85%] p-4">
@@ -108,7 +104,7 @@ const Tally = ({ contests, url, setShow}) => {
                                 </div>
                             ))}
                         </div>
-                    :
+                        :
                         <p className="font-bold text-xl text-center">No ballots collected for this contest!</p>
                     }
                 </div>
