@@ -8,7 +8,7 @@ from database import Base
 class Contest(Base):
     __tablename__ = "candidates"
     type = Column(String, primary_key=True, index=True)
-    ballot_selections = relationship("BallotSelection", back_populates="owner")
+    ballot_selections = relationship("BallotSelection", back_populates="owner", cascade="all, delete, delete-orphan")
 
 class BallotSelection(Base):
     __tablename__ = "ballot_selections"
