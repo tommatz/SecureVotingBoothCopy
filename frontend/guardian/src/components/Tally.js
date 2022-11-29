@@ -57,7 +57,9 @@ const Tally = ({ contests, url, setShow }) => {
 
     return (
         <section id="tally" className="h-full w-full flex flex-row">
-            <section id="tally_nav" className="h-full w-[15%] bg-gradient-to-r from-green-700 to-green-500 border-r-2 border-black shadow-xl shadow-black text-white">
+
+            <section id="tally_nav" className="h-full w-[15%] bg-gradient-to-r from-green-800 to-green-600 border-r-2 border-black shadow-xl shadow-black text-white">
+
                 <div className="h-full w-full flex flex-col space-y-4 p-4">
                     <h1 className="mx-auto text-2xl font-bold">Election Tally</h1>
                     {/*<p className="mx-auto text-xl">Election in progress</p>*/}
@@ -76,7 +78,9 @@ const Tally = ({ contests, url, setShow }) => {
 
             <section id="tally_content" className="h-full w-[85%] p-4">
                 <div className="flex flex-col h-full w-full space-y-4">
-                    <div className="p-4 text-white text-center bg-gradient-to-l from-green-700 to-green-500 rounded-xl border-2 border-black shadow-md shadow-black">
+
+                    <div className="p-4 text-white text-center bg-gradient-to-l from-green-800 to-green-600 rounded-xl border-2 border-black shadow-md shadow-black">
+
                         <h1 className="text-2xl font-bold">{selected} Contest</h1>
                         <p>Total Votes: {total}</p>
 
@@ -86,9 +90,11 @@ const Tally = ({ contests, url, setShow }) => {
 
                     </div>
 
-                    {(Object.keys(tally).length !== 0 && tally[selected]) ?
+                    {tally[selected] ?
                         <div className="flex flex-col border-2 border-black">
-                            <div className="flex flex-row bg-green-300 px-2 space-x-2 text-base sm:text-lg md:text-xl">
+
+                            <div className="flex flex-row bg-green-200 px-2 space-x-2 text-base sm:text-lg md:text-xl">
+
                                 <div className="w-2/3 flex flex-row space-x-2">
                                     <p className="font-bold">#</p>
                                     <span className="h-full w-0.5 bg-black"></span>
@@ -98,10 +104,10 @@ const Tally = ({ contests, url, setShow }) => {
                                 <p className="w-1/3">Tally</p>
                             </div>
 
-                            {Object.keys(tally[selected]).sort((a, b) => tally[selected][b]["votes"] - tally[selected][a]["votes"]).map((candidateIndex) => (
+                            {Object.keys(tally[selected]).sort((a, b) => tally[selected][b]["votes"] - tally[selected][a]["votes"]).map((candidateIndex, sortIndex) => (
                                 <div key={candidateIndex} className="flex flex-row px-2 space-x-2 border-t-2 border-black text-base sm:text-lg md:text-xl">
                                     <div className="w-2/3 flex flex-row space-x-2">
-                                        <p className="font-bold">{(Number(candidateIndex) + 1)}</p> {/* Had to explicitly make candidateIndex a number because it was seen as a string  */}
+                                        <p className="font-bold">{(sortIndex + 1)}</p> {/* Had to use sort index here since candidateIndex is their array order */}
                                         <span className="h-full w-0.5 bg-black"></span>
                                         <p>{tally[selected][candidateIndex]["name"]}</p>
                                     </div>
@@ -110,8 +116,12 @@ const Tally = ({ contests, url, setShow }) => {
                                 </div>
                             ))}
                         </div>
-                        :
-                        <p className="font-bold text-xl text-center">No ballots collected for this contest!</p>
+                    :
+                    Object.keys(tally).length !== 0 ?    
+                        <p className="font-bold text-xl text-center">Contest not found!</p>
+                    :
+                        <p className="font-bold text-xl text-center">No election manifest found, upload a manifest!</p>
+
                     }
                 </div>
             </section>
