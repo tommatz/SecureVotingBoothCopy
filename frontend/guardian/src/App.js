@@ -1,18 +1,23 @@
 import useServer from "./components/useServer";
 import Tally from "./components/Tally";
+import Upload from "./components/Upload";
+import Landing from "./components/landing";
 //import Template from "./components/Template";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const url = "http://localhost:8006";
 
 function App() {
+
   const [server, setServer] = useServer(url);
   useEffect(() => {
-    if(server === "Error")
+    if (server === "Error")
       setServer("Retry")
   }, [server, setServer])
 
-  if(!server || server === false || server === "Error" || server === "Retry") {//Loading page while frontend is fetching server data
+  const [show, setShow] = useState("landing");
+
+  if (!server || server === false || server === "Error" || server === "Retry") {//Loading page while frontend is fetching server data
     return (
       <header id='App' className='h-screen w-screen flex flex-col'>
         <section id="loading" className="m-auto text-center">
@@ -25,7 +30,8 @@ function App() {
 
   return (
     <header id="App" className="h-screen w-screen">
-        {Object.keys(server["contests"]).length !== 0 ? <Tally contests={server["contests"]} url={url} /> : <p>Upload Election JSON File Screen Here</p>}
+      {/*Object.keys(server["contests"]).length !== 0 ? <Tally contests={server["contests"]} url={url} /> : <Upload url={url} />*/}
+      {show === "landing" ? <Landing setShow={setShow} /> : show === "upload" ? <Upload url={url} setShow={setShow} /> : <Tally contests={server["contests"]} url={url} setShow={setShow} />}
     </header>
   );
 }

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react"
 
-const Tally = ({ contests, url }) => {
+const Tally = ({ contests, url, setShow }) => {
 
+    const [refreshTally, setRefreshTally] = useState(false)
     const debounce = useRef(false)
     const [tally, setTally] = useState("")
     useEffect(() => {
@@ -21,30 +22,30 @@ const Tally = ({ contests, url }) => {
             const setup = await fetchData("/tally/election")
 
             let temp = {}; //Variable to change the backend tally data to the schema used by the frontend
-            for(let i = 0; i < setup["contests"].length; i++)
-                if(setup["contests"][i]["type"] !== null && setup["contests"][i]["ballot_selections"] !== null)
-                    temp = {...temp, [setup["contests"][i]["type"]] : setup["contests"][i]["ballot_selections"]};
+            for (let i = 0; i < setup["contests"].length; i++)
+                if (setup["contests"][i]["type"] !== null && setup["contests"][i]["ballot_selections"] !== null)
+                    temp = { ...temp, [setup["contests"][i]["type"]]: setup["contests"][i]["ballot_selections"] };
 
             setTally(temp)
             debounce.current = false
         }
 
-        if(!debounce.current)
+        if (!debounce.current)
             getTally()
-    }, [url])
+    }, [url, refreshTally])
 
     const [selected, setSelected] = useState(Object.keys(contests)[0])
-    const [total, setTotal] = useState (0)
+    const [total, setTotal] = useState(0)
     useEffect(() => {
-        if(typeof(tally) !== "object" || Object.keys(tally).length === 0) 
-            return 
+        if (typeof (tally) !== "object" || Object.keys(tally).length === 0)
+            return
 
         let sum = 0
         Object.keys(tally[selected]).map((candidateIndex) => (sum += tally[selected][candidateIndex]["votes"]))
         setTotal(sum)
     }, [tally, selected])
 
-    if(tally === "" || tally === "Error"){
+    if (tally === "" || tally === "Error") {
         return (
             <section id="tally" className="h-full w-full flex flex-col">
                 <div className="m-auto text-center text-black dark:text-white transition-colors duration-500">
@@ -56,27 +57,44 @@ const Tally = ({ contests, url }) => {
 
     return (
         <section id="tally" className="h-full w-full flex flex-row">
+
             <section id="tally_nav" className="h-full w-[15%] bg-gradient-to-r from-green-800 to-green-600 border-r-2 border-black shadow-xl shadow-black text-white">
+
                 <div className="h-full w-full flex flex-col space-y-4 p-4">
                     <h1 className="mx-auto text-2xl font-bold">Election Tally</h1>
                     {/*<p className="mx-auto text-xl">Election in progress</p>*/}
                     <h2 className="text-2xl font-bold">Contests</h2>
                     {Object.keys(contests).map((contest) => (
-                        <p key={contest} onClick={() => setSelected(contest)} className={"text-xl w-fit transition-all duration-300 " + (selected === contest ? "cursor-default text-slate-300" : "cursor-pointer betterhover:hover:text-gray-400")}>{(selected === contest ? "> " : "• " ) + contest}</p>
+                        <p key={contest} onClick={() => setSelected(contest)} className={"text-xl w-fit transition-all duration-300 " + (selected === contest ? "cursor-default text-slate-300" : "cursor-pointer betterhover:hover:text-gray-400")}>{(selected === contest ? "> " : "• ") + contest}</p>
                     ))}
+
+                    <button onClick={() => setShow("landing")} className={"text-xl transition-colors duration-300 cursor-pointer text-white cursor-pointer betterhover:hover:text-gray-300"}>
+                        Back to Landing Page
+                    </button>
                 </div>
+
+
             </section>
 
             <section id="tally_content" className="h-full w-[85%] p-4">
                 <div className="flex flex-col h-full w-full space-y-4">
+
                     <div className="p-4 text-white text-center bg-gradient-to-l from-green-800 to-green-600 rounded-xl border-2 border-black shadow-md shadow-black">
+
                         <h1 className="text-2xl font-bold">{selected} Contest</h1>
                         <p>Total Votes: {total}</p>
+
+                        <button className="text-white cursor-pointer betterhover:hover:text-gray-400 font-bold my-5 b-2 b-black  " onClick={() => setRefreshTally(!refreshTally)}>
+                        Refresh Tally
+                    </button>
+
                     </div>
 
                     {tally[selected] ?
                         <div className="flex flex-col border-2 border-black">
+
                             <div className="flex flex-row bg-green-200 px-2 space-x-2 text-base sm:text-lg md:text-xl">
+
                                 <div className="w-2/3 flex flex-row space-x-2">
                                     <p className="font-bold">#</p>
                                     <span className="h-full w-0.5 bg-black"></span>
@@ -103,6 +121,7 @@ const Tally = ({ contests, url }) => {
                         <p className="font-bold text-xl text-center">Contest not found!</p>
                     :
                         <p className="font-bold text-xl text-center">No election manifest found, upload a manifest!</p>
+
                     }
                 </div>
             </section>

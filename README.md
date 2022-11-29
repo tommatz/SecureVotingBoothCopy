@@ -13,7 +13,7 @@
 
 
 ## Overview
-In its current state, the project is capable of logging a user in with address and name validation. Once a user is logged in they are able to access the dynamically created voting page and cast their ballot. Functionality for logging out is also present in the current version.
+In its current state, the project is capable of logging a user in with address and name validation. A user must be registered to be able to login. Once a user is logged in they are able to access the dynamically created voting page and cast their ballot. Functionality for logging out is also present in the current version. The project also includes an admin/guardians page. Here administrative users are able to start elections and tally running elections. This page is fully independent of the voters page and not accessible by non administrative users.
 
 ## Running Instructions
 The backend and the frontend should be run seperately.
@@ -26,11 +26,18 @@ The backend and the frontend should be run seperately.
 
 ### Frontend
 
-1. Navigate to the <code>frontend</code> directory
+1. In the frontend navigate either to <code>guardian</code> or <code>voter</code> directory
 2. Execute the <code>npm install</code> command to ensuire all requirements are installed
 3. Execute the program using <code>npm start</code> to run the program
  
 ## Change Log
+
+**SPRINT 3** - *11/29/2022*
+
+- Added voter registration logic
+- Got ballot and user info to post to database
+- Created administrative pages for creating an election and getting a tally from an election
+- Wrote election manifest verifiers
 
 **SPRINT 2** - *11/8/2022*
 
