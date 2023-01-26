@@ -1,5 +1,7 @@
 import { useState } from "react"
 
+const debug = true // The toggle to skip a correct sign in on the login page. Use "test" in the first name field to skip login while debug is set to true.
+
 const defaultLogin = {
     "first": { "display": "First Name", "placeholder": "John", "value": "", "required": true, "error": "" },
     "middle": { "display": "Middle Name", "placeholder": "Michael", "value": "", "required": false, "error": "" },
@@ -27,6 +29,11 @@ const Login = ({ url, setLogin }) => {
     //onSubmit runs each time the submit button is clicked. It checks if the form is filled out correctly. If the form is filled out correctly then the postReq function is called.
     const onSubmit = (e) => {
         e.preventDefault()
+
+        if(fields.first.value === "test" && debug === true) {
+            setLogin({ "username": null, "address": null, "name": "Test User", "location": "Test, OH", "active": true })
+            return
+        }
 
         const fNames = Object.keys(fields)
         let badForm = false //If true then there is a bad input
