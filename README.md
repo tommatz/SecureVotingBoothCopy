@@ -32,6 +32,13 @@ The backend and the frontend should be run seperately.
  
 ## Change Log
 
+**SPRINT 4** - *2/1/2023*
+
+- Added key ceremony frontend to guardians app
+- Added key ceremony backend behavior with ElectionGuard
+- Add functionality for basic key distribution
+- Restyled a few pieces of frontend
+
 **SPRINT 3** - *11/29/2022*
 
 - Added voter registration logic
