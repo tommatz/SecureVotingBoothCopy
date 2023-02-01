@@ -104,3 +104,14 @@ class TallyRetrival(BaseModel):
     contests : Optional[List[str]]
     candidates : Optional[List[str]]
     retrieve_all : bool = False
+
+class KeyCeremonyInfo(BaseModel):
+    name : str
+    guardians : int
+    quorum : int
+
+    @validator("guardians")
+    def check_guardians(cls, v : int):
+        if v < cls.quorum:
+            raise ValueError("Illegal Quorum/Guardian setup. Guardians must be greater or equal to the Quorum")
+        return v
