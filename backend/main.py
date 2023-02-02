@@ -15,6 +15,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 import uuid
 
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Just Bobcats")
