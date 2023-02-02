@@ -7,8 +7,9 @@ from pydantic import BaseModel
 from schemas import *
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from models import Base, BallotSelection, Contest 
+from models import Base, BallotSelection, Contest
 from models import User
+from models import ElectionInfo   
 from database import SessionLocal, engine
 from typing import Optional
 from sqlalchemy.orm import Session
@@ -55,8 +56,8 @@ def get_setup(database : Session = Depends(get_db)):
 
 
 
-@app.post("/guardian/setup_election", tags=["Contest Setup"])
-def setup_election(manifest : UploadFile = File(...), database : Session = Depends(get_db)):
+@app.post("/guardian/upload_manifest", tags=["Contest Setup"])
+def upload_manifest(manifest : UploadFile = File(...), database : Session = Depends(get_db)):
     
     
     manifest : DBContests = DBContests(**json.load(manifest.file))
@@ -79,7 +80,13 @@ def setup_election(manifest : UploadFile = File(...), database : Session = Depen
         
     return {"info" : "file sucessfully saved"}
 
+@app.post("/guardian/upload_guardians", tags=["Contest Setup"])
+def upload_ceremony_name(key_ceremony_info : str, database : Session = Depends(get_db)):
+    election_info = ElectionInfo(ceremony_name=key_ceremony_info)
+    database.add(election_info)
+    database.commit()
 
+    return key_ceremony_info
 
 @app.get("/tally/election", response_model=DBTallyContests, tags=["Results"])
 def get_election_tally(database : Session = Depends(get_db)):
