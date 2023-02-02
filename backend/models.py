@@ -44,3 +44,7 @@ class User(Base):
     @hybrid_property
     def address(self):
         return self.country_code + self.country_area + self.city + self.postal_code + self.street_address
+
+class ElectionInfo(Base):
+    __tablename__ = "election_info"
+    ceremony_name = Column(String, primary_key=True, index=True)
