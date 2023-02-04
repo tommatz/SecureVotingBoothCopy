@@ -9,6 +9,11 @@ function Landing({ setShow }) {
                     <div className="text-center text-4xl font-bold">
                         Select a page
                     </div>
+                    <div className="text-center">
+                    <button className="border-2 border-black text-lg cursor-pointer rounded-full p-4 betterhover:hover:bg-slate-300 transition-colors duration-300" onClick={() => setShow("upload")}>
+                            Key Ceremony
+                        </button>
+                    </div>
                     <div className=" text-center ">
                         <button className="border-2 border-black text-lg cursor-pointer rounded-full p-4 betterhover:hover:bg-slate-300 transition-colors duration-300" onClick={() => setShow("upload")}>
                             Configure Election
