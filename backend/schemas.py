@@ -110,8 +110,13 @@ class KeyCeremonyInfo(BaseModel):
     guardians : int
     quorum : int
 
-    @validator("guardians")
-    def check_guardians(cls, v : int):
-        if v < cls.quorum:
+    @validator("quorum")
+    def check_guardians(cls, v : int, values : dict):
+        quorum : int = v
+        guardians = values["guardians"]
+    
+        if guardians < quorum:
             raise ValueError("Illegal Quorum/Guardian setup. Guardians must be greater or equal to the Quorum")
-        return v
+
+        
+        return "Request good"
