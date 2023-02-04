@@ -14,6 +14,7 @@ from database import SessionLocal, engine
 from typing import Optional
 from sqlalchemy.orm import Session
 import uuid
+from electionguard.key_ceremony import CeremonyDetails
 
 
 Base.metadata.create_all(bind=engine)
@@ -179,6 +180,10 @@ def register(login_info : LoginInfo, database: Session = Depends(get_db)):
     
     return login_info
     
+@app.post("/guardian/keyceremony", response_model=LoginInfo, response_model_exclude={"id"}, tags=["Authentication"])
+def keyCeremonyEndpoint(key_ceremony_info : KeyCeremonyInfo):
+    print("This comment is a place holder so the function has contents")
+    #electionGuardKeyCeremony(key_ceremony_info)
 
 
 # Sample for test - https://github.com/microsoft/electionguard/blob/main/data/1.0.0-preview-1/sample/hamilton-general/election_private_data/plaintext_ballots/plaintext_ballot_5a150c74-a2cb-47f6-b575-165ba8a4ce53.json
