@@ -23,8 +23,7 @@ const KeyCeremony = ({ url, setShow }) => {
     }
 
     const onSubmit = (e) => {
-        
-
+        e.preventDefault()
         const fNames = Object.keys(fields)
         let badForm = false //If true then there is a bad input
         let errorFields = fields
@@ -38,14 +37,52 @@ const KeyCeremony = ({ url, setShow }) => {
         if (badForm) {
             setError("Invalid input, see red text above.")
             setFields(errorFields)
-            e.preventDefault()
+            
         }
         else
         {
-            setError("")
-            setFields(defaultVals)//Reset fields on success
-            setShow("loading")
+            postReq();
         }
+    }
+
+    const postReq = () => {
+        let guardians = parseInt(fields.guardians.value);
+        let quorum = parseInt(fields.quorum.value);
+        console.log(typeof(guardians))
+        if (typeof(guardians) !== "number") return
+        if (typeof(quorum) !== "number") return
+
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({"name" : fields.electionName.value, "guardians" : guardians, "quorum" : quorum})
+        };
+
+        fetch(url + "/guardian/set_key_ceremony", requestOptions)
+            .then(async res => {
+                const isJson = res.headers.get('content-type')?.includes('application/json');
+                const data = isJson && await res.json();
+
+                // check for error response
+                if (!res.ok) {
+                    // get error message from body or default to response status
+                    const error = data || res.status;
+                    return Promise.reject(error);
+                }
+
+                console.log(res)
+                setError("Sucessfully uploaded " + fields.electionName.value + " to the server!")
+                setFields(defaultVals)//Reset fields on success
+                setShow("landing")
+                return (res);
+            })
+            .catch(error => {
+                console.error(error)
+                setError("Unable to upload this input to the server!")
+                return (error);
+            });
+
+
     }
 
     const checkEmpty = (fName) => {
@@ -54,7 +91,6 @@ const KeyCeremony = ({ url, setShow }) => {
 
         return false
     }
-
 
     return (
         <section id="keyCeremony" className="h-full w-full"> 
