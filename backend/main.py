@@ -174,7 +174,12 @@ def register(login_info : LoginInfo, database: Session = Depends(get_db)):
     
     return login_info
 
-@app.post("/guardian/get_ceremony_info", tags=["Contest Setup"])
+@app.get("/guardian/get_all_ceremonys", tags=["Contest Setup"])
+def get_all_ceremonys(database : Session = Depends(get_db)):
+    return database.query(ElectionInfo).all()
+
+
+@app.get("/guardian/get_ceremony_info", tags=["Contest Setup"])
 def get_ceremony_info(name : str, database : Session = Depends(get_db)):
     ceremony_info = database.query(ElectionInfo).get(name)
     return ceremony_info
