@@ -119,4 +119,5 @@ class KeyCeremonyInfo(BaseModel):
             raise ValueError("Illegal Quorum/Guardian setup. Guardians must be greater or equal to the Quorum")
 
         
-        return "Request good"
+        return quorum
+
