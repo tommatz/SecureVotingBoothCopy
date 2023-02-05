@@ -47,4 +47,6 @@ class User(Base):
 
 class ElectionInfo(Base):
     __tablename__ = "election_info"
-    ceremony_name = Column(String, primary_key=True, index=True)
+    name = Column(String, primary_key=True, index=True)
+    guardians = Column(Integer, index=True)
+    quorum = Column(Integer, index=True)
