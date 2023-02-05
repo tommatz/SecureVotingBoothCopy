@@ -10,7 +10,7 @@ function Landing({ setShow }) {
                         Select a page
                     </div>
                     <div className="text-center">
-                    <button className="border-2 border-black text-lg cursor-pointer rounded-full p-4 betterhover:hover:bg-slate-300 transition-colors duration-300" onClick={() => setShow("upload")}>
+                    <button className="border-2 border-black text-lg cursor-pointer rounded-full p-4 betterhover:hover:bg-slate-300 transition-colors duration-300" onClick={() => setShow("keyCeremony")}>
                             Key Ceremony
                         </button>
                     </div>
