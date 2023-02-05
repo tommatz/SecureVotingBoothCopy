@@ -14,6 +14,7 @@ from database import SessionLocal, engine
 from typing import Optional
 from sqlalchemy.orm import Session
 import uuid
+from electionguard.key_ceremony import CeremonyDetails
 
 
 Base.metadata.create_all(bind=engine)
@@ -184,7 +185,7 @@ def set_key_ceremony(key_ceremony_info : KeyCeremonyInfo, database: Session = De
     ceremony = ElectionInfo(name=key_ceremony_info.name, guardians=key_ceremony_info.guardians, quorum=key_ceremony_info.quorum)
     database.add(ceremony)
     database.commit()
-    return key_ceremony_info
+
 
 
 # Sample for test - https://github.com/microsoft/electionguard/blob/main/data/1.0.0-preview-1/sample/hamilton-general/election_private_data/plaintext_ballots/plaintext_ballot_5a150c74-a2cb-47f6-b575-165ba8a4ce53.json

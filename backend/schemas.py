@@ -120,3 +120,4 @@ class KeyCeremonyInfo(BaseModel):
 
         
         return quorum
+
