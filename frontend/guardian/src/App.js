@@ -3,6 +3,7 @@ import Tally from "./components/Tally";
 import Upload from "./components/Upload";
 import Landing from "./components/landing";
 import KeyCeremony from "./components/KeyCeremony"
+import VoterRegistration from "./components/Registration"
 
 //import Template from "./components/Template";
 import { useEffect, useState } from "react";
@@ -33,7 +34,10 @@ function App() {
   return (
     <header id="App" className="h-screen w-screen">
       {/*Object.keys(server["contests"]).length !== 0 ? <Tally contests={server["contests"]} url={url} /> : <Upload url={url} />*/}
-      {show === "landing" ? <Landing setShow={setShow} /> : show === "upload" ? <Upload url={url} setShow={setShow} /> : show === "tally" ? <Tally contests={server["contests"]} url={url} setShow={setShow} /> : <KeyCeremony setShow={setShow} url={url}/> }
+      {show === "landing" 
+      ? <Landing setShow={setShow} /> : show === "upload" 
+      ? <Upload url={url} setShow={setShow} /> : show === "tally" 
+      ? <Tally contests={server["contests"]} url={url} setShow={setShow} /> : show === "keyCeremony" ? <KeyCeremony setShow={setShow} url={url}/> : <VoterRegistration setShow={setShow} url={url}/> }
     </header>
   );
 }
