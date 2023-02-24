@@ -44,6 +44,7 @@ def get_db():
 @app.post("/voter/send_vote", tags=["Voting"])
 def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session = Depends(get_db)):
 
+    print(ballot.spoiled) #I accidentally did this issue on my iss99 branch. Adding a print so theres something on this br
     username = login_info.username
     address = login_info.address
 
