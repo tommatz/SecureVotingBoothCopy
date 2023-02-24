@@ -65,7 +65,7 @@ const Vote = ({ contests, url, setLogin }) => {
 
     return (
         <>{/* This empty html is needed because react components can only return one parent element and there is a section for both vote and bottombar */}
-            <section id="vote" className="h-[90%] w-full grid overflow-x-hidden overflow-y-auto"> {/* The 90% vertical height of the vote section is to fill the center of the screen (top bar takes 5% and bottom bar takes 5%) */}
+            <section id="vote" className="h-[90%] w-full grid overflow-y-auto"> {/* The 90% vertical height of the vote section is to fill the center of the screen (top bar takes 5% and bottom bar takes 5%) */}
                 {cNames.map((contest) => (
                     <div key={contest} className={`flex flex-col m-auto items-center bg-neutral-300 dark:bg-slate-700 rounded-xl transition-colors duration-500 ${currentContest !== contest && "hidden"}`}>
                         <h1 className="text-2xl sm:text-4xl p-4 font-bold text-black dark:text-white transition-colors duration-500">{contest} Contest</h1>
@@ -84,12 +84,29 @@ const Vote = ({ contests, url, setLogin }) => {
                         </div>
                     </div>
                 ))}
+                <section id="confirmation" className={`flex flex-col m-auto items-center p-4 space-y-4 bg-neutral-300 dark:bg-slate-700 rounded-xl transition-colors duration-500 ${currentContest !== "Confirm" && "hidden"}`}>
+                    <h1 id="confirmation-header" className="text-2xl sm:text-4xl font-bold text-black dark:text-white transition-colors duration-500">Confirm your ballot</h1>
+                    
+                    <div id="confirmation-selection" className="flex flex-col space-y-4 border-y-4 p-4 text-lg sm:text-xl md:text-2xl dark:text-white border-black dark:border-white transition-colors duration-500">
+                        {cNames.map((contest) => (
+                            <p key={contest}>{contest + ": " + (selected[contest] === -1 ? "No Vote" : contests[contest][selected[contest]]["name"])}</p>
+                        ))}
+                    </div>
+                    
+                    <div id="confirmation-buttons" className="flex space-x-4">
+                        <button onClick={() => setCurrentContest(cNames[cNames.length -1])} className="px-8 py-4 rounded-full cursor-pointer border-4 text-lg sm:text-xl md:text-2xl font-bold text-black dark:text-white border-black dark:border-white transition-all duration-500 betterhover:hover:scale-110 betterhover:hover:bg-red-300 dark:betterhover:hover:bg-red-700">Go Back</button>
+                        <button onClick={() => console.log("Spoil")} className="px-8 py-4 rounded-full cursor-pointer border-4 text-lg sm:text-xl md:text-2xl font-bold text-black dark:text-white border-black dark:border-white transition-all duration-500 betterhover:hover:scale-110 betterhover:hover:bg-yellow-300 dark:betterhover:hover:bg-yellow-500">Spoil</button>
+                        <button onClick={() => submitVote()} className="px-8 py-4 rounded-full cursor-pointer border-4 text-lg sm:text-xl md:text-2xl font-bold text-black dark:text-white border-black dark:border-white transition-all duration-500 betterhover:hover:scale-110 betterhover:hover:bg-green-300 dark:betterhover:hover:bg-green-700">Confirm</button>
+                    </div>
+                </section>
             </section>
-            <section id="bottombar" className="h-[5%] w-full flex flex-row-reverse items-center bg-green-600 dark:bg-slate-700 border-t-4 border-black dark:border-white transition-colors duration-500">
-                <button onClick={cNames.indexOf(currentContest) === cNames.length - 1 ? () => submitVote() : () => setCurrentContest(cNames[cNames.indexOf(currentContest) + 1])} className="px-4 h-full text-sm sm:text-base md:text-xl font-bold dark:text-white betterhover:hover:bg-green-400 dark:betterhover:hover:bg-slate-500 transition-colors duration-500">{cNames.indexOf(currentContest) === cNames.length - 1 ? "Submit" : "Continue"}</button>
-                <span className="h-full w-1 bg-black dark:bg-white transition-colors duration-500"/>
-                <button onClick={() => setCurrentContest(cNames[cNames.indexOf(currentContest) - 1])} className={`px-4 h-full text-sm sm:text-base md:text-xl font-bold dark:text-white betterhover:hover:bg-green-400 dark:betterhover:hover:bg-slate-500 transition-colors duration-500 ${cNames.indexOf(currentContest) === 0 && "hidden"}`}>Go Back</button>
-                <span className={`h-full w-1 bg-black dark:bg-white transition-colors duration-500 ${cNames.indexOf(currentContest) === 0 && "hidden"}`}/>
+            <section id="bottombar" className="h-[5%] w-full bg-green-600 dark:bg-slate-700 border-t-4 border-black dark:border-white transition-colors duration-500">
+                <div className={`h-full w-full flex flex-row-reverse items-center ${currentContest === "Confirm" && "hidden"}`}>
+                    <button onClick={cNames.indexOf(currentContest) === cNames.length - 1 ? () => setCurrentContest("Confirm") : () => setCurrentContest(cNames[cNames.indexOf(currentContest) + 1])} className="px-4 h-full text-sm sm:text-base md:text-xl font-bold dark:text-white betterhover:hover:bg-green-400 dark:betterhover:hover:bg-slate-500 transition-colors duration-500">{cNames.indexOf(currentContest) === cNames.length - 1 ? "Submit" : "Continue"}</button>
+                    <span className="h-full w-1 bg-black dark:bg-white transition-colors duration-500"/>
+                    <button onClick={() => setCurrentContest(cNames[cNames.indexOf(currentContest) - 1])} className={`px-4 h-full text-sm sm:text-base md:text-xl font-bold dark:text-white betterhover:hover:bg-green-400 dark:betterhover:hover:bg-slate-500 transition-colors duration-500 ${cNames.indexOf(currentContest) === 0 && "hidden"}`}>Go Back</button>
+                    <span className={`h-full w-1 bg-black dark:bg-white transition-colors duration-500 ${cNames.indexOf(currentContest) === 0 && "hidden"}`}/>
+                </div>
             </section>
         </>
     )
