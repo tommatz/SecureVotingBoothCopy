@@ -42,15 +42,45 @@ def get_db():
         db.close()
         
 @app.post("/voter/send_vote", tags=["Voting"])
-def recieve_ballot(ballot : Ballot, database : Session = Depends(get_db)):
+def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session = Depends(get_db)):
 
-    for contest in ballot.contests:
-        for selection in contest.ballot_selections:
-            candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id).one()
-            candidate.votes = candidate.votes + int(selection.vote)
-    database.commit()
+    username = login_info.username
+    address = login_info.address
+
+    login_user = User( #need to create this for the hybrid properties
+        first = username.first,
+        middle = username.middle,
+        last = username.last,
+        suffix = username.suffix,
+
+        country_code = address.country_code,
+        country_area = address.country_area,
+        city = address.city,
+        postal_code = address.postal_code,
+        street_address = address.street_address
+    )
+
+    results : List[User] = database.query(User).filter(User.first == username.first).filter(User.last == username.last).all()
+    found = results[0]
+
+    for result in results:
+        if login_user.fullname == result.fullname and login_user.address == result.address:
+            found = result
+
+    if found.voted == False:
+        if ballot.spoiled == False:
+            found.voted = True #mark that the user has voted
+            database.commit()
+
+        for contest in ballot.contests:
+           for selection in contest.ballot_selections:
+                candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id).one()
+                candidate.votes = candidate.votes + int(selection.vote)
+        database.commit()
+        return {"info" : "Ballot Succesfully Recieved"}
     
-    return {"info" : "Ballot Succesfully Recieved"}
+    return {"info" : "Failed. Attempt at double voting"}
+
 
 @app.get("/voter/get_setup", response_model=DBContests, tags=["Contest Setup"])
 def get_setup(database : Session = Depends(get_db)):
@@ -159,7 +189,8 @@ def register(login_info : LoginInfo, database: Session = Depends(get_db)):
         country_area = address.country_area,
         city = address.city,
         postal_code = address.postal_code,
-        street_address = address.street_address
+        street_address = address.street_address,
+        voted = False
     )
 
     results : List[User] = database.query(User).filter(User.first == username.first).filter(User.last == username.last).all()
