@@ -107,8 +107,6 @@ def upload_manifest(manifest : UploadFile = File(...), database : Session = Depe
         database.add(db_contest)
         ballot_selections = []
     database.commit()
-            
-        
         
     return {"info" : "file sucessfully saved"}
 
@@ -168,8 +166,11 @@ def receive_login(login_info : LoginInfo, database: Session = Depends(get_db)):
 
     for result in results:
         if login_user.fullname == result.fullname and login_user.address == result.address:
-            return login_info
-        
+            if result.voted == False:
+                return login_info
+            else:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User has already voted")
+
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User is not registered to vote.")
 
 
