@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-const Vote = ({ contests, url, setLogin }) => {
+const Vote = ({ contests, url, login, setLogin }) => {
 
     const cNames = Object.keys(contests) //Returns array of the contests object children names Example: ["Primary", "Secondary"]
 
@@ -24,7 +24,7 @@ const Vote = ({ contests, url, setLogin }) => {
             setSelected({ ...selected, [contest]: -1 }) //Deselect is needed since voters can abstain from voting
     }
 
-    const submitVote = () => {
+    const submitVote = (spoil) => {
         let ballot = []
         for (let i = 0; i < cNames.length; i++) {
             ballot[i] = {
@@ -41,7 +41,7 @@ const Vote = ({ contests, url, setLogin }) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ "contests" : ballot })
+            body: JSON.stringify({ "ballot": {"contests" : ballot, "spoiled" : spoil}, "login_info": {"username": login["username"], "address": login["address"]} })
         };
 
         fetch(url + "/voter/send_vote", requestOptions)
@@ -53,6 +53,7 @@ const Vote = ({ contests, url, setLogin }) => {
                 if (!response.ok) {
                     // get error message from the backend response or default to response status (i.e. 404 Not Found)
                     const error = (data && typeof (data) == "object" && data["detail"][0]["msg"]) || (data && typeof (data) == "object" && data["detail"]) || response.status;
+                    console.log(data["detail"])
                     return Promise.reject(error);
                 }
 
@@ -95,8 +96,8 @@ const Vote = ({ contests, url, setLogin }) => {
                     
                     <div id="confirmation-buttons" className="flex space-x-4">
                         <button onClick={() => setCurrentContest(cNames[cNames.length -1])} className="px-8 py-4 rounded-full cursor-pointer border-4 text-lg sm:text-xl md:text-2xl font-bold text-black dark:text-white border-black dark:border-white transition-all duration-500 betterhover:hover:scale-110 betterhover:hover:bg-red-300 dark:betterhover:hover:bg-red-700">Go Back</button>
-                        <button onClick={() => console.log("Spoil")} className="px-8 py-4 rounded-full cursor-pointer border-4 text-lg sm:text-xl md:text-2xl font-bold text-black dark:text-white border-black dark:border-white transition-all duration-500 betterhover:hover:scale-110 betterhover:hover:bg-yellow-300 dark:betterhover:hover:bg-yellow-500">Spoil</button>
-                        <button onClick={() => submitVote()} className="px-8 py-4 rounded-full cursor-pointer border-4 text-lg sm:text-xl md:text-2xl font-bold text-black dark:text-white border-black dark:border-white transition-all duration-500 betterhover:hover:scale-110 betterhover:hover:bg-green-300 dark:betterhover:hover:bg-green-700">Confirm</button>
+                        <button onClick={() => submitVote(true)} className="px-8 py-4 rounded-full cursor-pointer border-4 text-lg sm:text-xl md:text-2xl font-bold text-black dark:text-white border-black dark:border-white transition-all duration-500 betterhover:hover:scale-110 betterhover:hover:bg-yellow-300 dark:betterhover:hover:bg-yellow-500">Spoil</button>
+                        <button onClick={() => submitVote(false)} className="px-8 py-4 rounded-full cursor-pointer border-4 text-lg sm:text-xl md:text-2xl font-bold text-black dark:text-white border-black dark:border-white transition-all duration-500 betterhover:hover:scale-110 betterhover:hover:bg-green-300 dark:betterhover:hover:bg-green-700">Confirm</button>
                     </div>
                 </section>
             </section>

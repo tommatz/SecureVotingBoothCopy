@@ -31,7 +31,7 @@ const Login = ({ url, setLogin }) => {
         e.preventDefault()
 
         if(fields.first.value === "test" && debug === true) {
-            setLogin({ "username": null, "address": null, "name": "Test User", "location": "Test, OH", "active": true })
+            setLogin({ "username": {"first": "Test", "middle": "A", "last": "User", "suffix": ""}, "address": {"country_code": "US", "country_area": "OH", "city": "Athens", "postal_code": "45701", "street_address": "1 Ohio University"}, "name": "Test User", "location": "Athens, OH", "active": true })
             return
         }
 
