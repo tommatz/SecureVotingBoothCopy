@@ -147,7 +147,6 @@ def receive_login(login_info : LoginInfo, database: Session = Depends(get_db)):
 def register(login_info : LoginInfo, database: Session = Depends(get_db)):
     username = login_info.username
     address = login_info.address
-
     new_user = User(
         id = str(uuid.uuid4()),
         first = username.first,
