@@ -1,5 +1,5 @@
 from mimetypes import suffix_map
-from sqlalchemy import Column, ForeignKey, String, Integer, Identity
+from sqlalchemy import Column, ForeignKey, String, Integer, Identity, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property
 from database import Base
@@ -36,7 +36,8 @@ class User(Base):
     city = Column(String, index=True)
     postal_code = Column(String, index=True)
     street_address = Column(String, index=True)
-    
+    voted = Column(Boolean, index=True)
+
     @hybrid_property
     def fullname(self):
         return self.first + self.middle + self.last + self.suffix

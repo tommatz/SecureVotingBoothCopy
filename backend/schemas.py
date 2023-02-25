@@ -14,6 +14,7 @@ class Contest(BaseModel):
 
 class Ballot(BaseModel):
     contests : List[Contest]
+    spoiled : bool = False
     
 
 class DBBallotSelection(BaseModel):

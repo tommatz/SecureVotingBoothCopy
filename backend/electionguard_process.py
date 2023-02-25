@@ -6,14 +6,24 @@ from electionguard_tools.helpers import KeyCeremonyOrchestrator
 from electionguard.key_ceremony import CeremonyDetails
 from electionguard.key_ceremony_mediator import KeyCeremonyMediator
 from electionguard.utils import get_optional
+import pickle
+
+def reestablishGuardians():
+    directory = 'data/keys'
+    guardian_list = []
+    for filename in os.listdir(directory):
+        f = os.path.join(directory, filename)
+        if os.path.isfile(f):
+            guardian = pickle.load(open(f, 'rb'))
+            guardian_list.append(guardian)
+
+    return guardian_list
+
+
 
 def distributeKeys(guardians):
     for i in range(len(guardians)):
-        keys = guardians[i]._election_keys
-        f = open("data/keys/Key"+str(i+1)+".lock", "w")
-        f.write("Key Pair:\n")
-        f.write(str(keys))
-        f.close()
+        pickle.dump(guardians[i], open( "data/keys/Key"+str(i+1)+".p", "wb" ))
 
 
 
@@ -50,3 +60,4 @@ def keyCeremony():
     distributeKeys(guardians)
 
 keyCeremony()
+reestablishGuardians()
