@@ -22,6 +22,9 @@ function Landing({ setShow }) {
                         <button className="w-1/2 p-4 rounded-full cursor-pointer border-2 text-black dark:text-white border-black dark:border-white transition-all duration-500 betterhover:hover:scale-110 betterhover:hover:bg-green-300 dark:betterhover:hover:bg-slate-700" onClick={() => setShow("tally")}>Check Results</button>
                     </div>
 
+                    <div className=" text-center">
+                        <button className="w-1/2 p-4 rounded-full cursor-pointer border-2 text-black dark:text-white border-black dark:border-white transition-all duration-500 betterhover:hover:scale-110 betterhover:hover:bg-green-300 dark:betterhover:hover:bg-slate-700" onClick={() => setShow("tally")}>Register New Voter</button>
+                    </div>
             {/* <section id="bottombar" className="h-[5%] w-full flex flex-row-reverse items-center bg-green-600 border-t-4 border-black"></section> */}
             </div>
             </div>
