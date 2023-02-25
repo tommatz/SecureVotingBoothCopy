@@ -14,6 +14,8 @@ from database import SessionLocal, engine
 from typing import Optional
 from sqlalchemy.orm import Session
 import uuid
+from electionguard.key_ceremony import CeremonyDetails
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -80,13 +82,7 @@ def upload_manifest(manifest : UploadFile = File(...), database : Session = Depe
         
     return {"info" : "file sucessfully saved"}
 
-@app.post("/guardian/upload_guardians", tags=["Contest Setup"])
-def upload_ceremony_name(key_ceremony_info : str, database : Session = Depends(get_db)):
-    election_info = ElectionInfo(ceremony_name=key_ceremony_info)
-    database.add(election_info)
-    database.commit()
 
-    return key_ceremony_info
 
 @app.get("/tally/election", response_model=DBTallyContests, tags=["Results"])
 def get_election_tally(database : Session = Depends(get_db)):
@@ -177,7 +173,24 @@ def register(login_info : LoginInfo, database: Session = Depends(get_db)):
     database.refresh(new_user)
     
     return login_info
-    
+
+@app.get("/guardian/get_all_ceremonys", tags=["Contest Setup"])
+def get_all_ceremonys(database : Session = Depends(get_db)):
+    return database.query(ElectionInfo).all()
+
+
+@app.get("/guardian/get_ceremony_info", tags=["Contest Setup"])
+def get_ceremony_info(name : str, database : Session = Depends(get_db)):
+    ceremony_info = database.query(ElectionInfo).get(name)
+    return ceremony_info
+
+
+@app.post("/guardian/set_key_ceremony", tags=["Contest Setup"])
+def set_key_ceremony(key_ceremony_info : KeyCeremonyInfo, database: Session = Depends(get_db)):
+    ceremony = ElectionInfo(name=key_ceremony_info.name, guardians=key_ceremony_info.guardians, quorum=key_ceremony_info.quorum)
+    database.add(ceremony)
+    database.commit()
+
 
 
 # Sample for test - https://github.com/microsoft/electionguard/blob/main/data/1.0.0-preview-1/sample/hamilton-general/election_private_data/plaintext_ballots/plaintext_ballot_5a150c74-a2cb-47f6-b575-165ba8a4ce53.json
