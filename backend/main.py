@@ -17,6 +17,7 @@ import uuid
 from electionguard.key_ceremony import CeremonyDetails
 from manifest_schema import Manifest
 from electionguard.logs import log_info
+import copy
 
 Base.metadata.create_all(bind=engine)
 
@@ -61,34 +62,46 @@ def get_setup(database : Session = Depends(get_db)):
 
 @app.post("/guardian/setup_election", tags=["Contest Setup"])
 def setup_election(manifest : UploadFile = File(...), database : Session = Depends(get_db)):
-    
+
 
 
     with open(f"data/{manifest.filename}", "wb") as wf:
         wf.write(manifest.file.read())
-        log_info(f"wrote manifest file into data/{manifest.filename}")
+        log_info(f"wrote manifest file into data/{manifest.filename}")   
 
-   # manifest : DBContests = Manifest(**json.load(manifest.file))
+    # Couldnt get it work without using the written manifest
+    # assuming the problem is caused by the byte offset being changed when it is read in
+    with open(f"data/{manifest.filename}", "rb") as file:
+        manifest : Manifest = Manifest(**json.load(file))
+
+
+
+
+
     
-
-
-    """
     contests = manifest.contests
-    
+
     for contest in contests:
         ballot_selections = []
-        db_contest = Contest(type=contest.type)
-        
-        for selections in contest.ballot_selections:
-            ballot_selections.append(BallotSelection(id=selections.id, name=selections.name, party=selections.party, image_uri=selections.image_uri))
+        db_contest = Contest(type=contest.name)
+
+        for selection in contest.ballot_selections:
+            candidate_id = selection.candidate_id
+            party : Optional[str] = ""
+            image_uri : Optional[str] = ""
+            
+            for partyl in manifest.candidates:
+                if partyl.object_id == candidate_id:
+                    party = partyl.party_id
+                    image_uri = partyl.image_uri
+
+            ballot_selections.append(BallotSelection(id=selection.sequence_order, name=selection.object_id, party=party, image_uri=image_uri))
 
         db_contest.ballot_selections.extend(ballot_selections)
         database.add(db_contest)
-        ballot_selections = []
     database.commit()
-            
         
-        """
+
     return {"info" : "file sucessfully saved"}
 
 
