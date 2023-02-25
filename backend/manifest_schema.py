@@ -35,10 +35,10 @@ class Party(BaseModel):
 
 class Candidate(BaseModel):
     object_id : str 
-    name : Optional[List[TextItem]]
-    party_id: str
+    name : TextItem
+    party_id: Optional[str]
     image_uri: Optional[str]
-    is_write_in: bool = False
+    is_write_in: Optional[bool]
 
 class BallotSelection(BaseModel):
     object_id : str
@@ -72,7 +72,7 @@ class Manifest(BaseModel):
     geopolitical_units: List[GeopoliticalUnit]
     parties: List[Party]
     candidates: List[Candidate]
-    contests : List[Contest]
+    contests : List[Contest] 
     ballot_styles: Optional[List[BallotStyle]]
     name : ContactInformation
 

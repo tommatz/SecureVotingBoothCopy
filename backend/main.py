@@ -15,7 +15,8 @@ from typing import Optional
 from sqlalchemy.orm import Session
 import uuid
 from electionguard.key_ceremony import CeremonyDetails
-
+from manifest_schema import Manifest
+from electionguard.logs import log_info
 
 Base.metadata.create_all(bind=engine)
 
@@ -58,12 +59,20 @@ def get_setup(database : Session = Depends(get_db)):
 
 
 
-@app.post("/guardian/upload_manifest", tags=["Contest Setup"])
-def upload_manifest(manifest : UploadFile = File(...), database : Session = Depends(get_db)):
+@app.post("/guardian/setup_election", tags=["Contest Setup"])
+def setup_election(manifest : UploadFile = File(...), database : Session = Depends(get_db)):
     
+
+
+    with open(f"data/{manifest.filename}", "wb") as wf:
+        wf.write(manifest.file.read())
+        log_info(f"wrote manifest file into data/{manifest.filename}")
+
+   # manifest : DBContests = Manifest(**json.load(manifest.file))
     
-    manifest : DBContests = DBContests(**json.load(manifest.file))
-    
+
+
+    """
     contests = manifest.contests
     
     for contest in contests:
@@ -79,7 +88,7 @@ def upload_manifest(manifest : UploadFile = File(...), database : Session = Depe
     database.commit()
             
         
-        
+        """
     return {"info" : "file sucessfully saved"}
 
 
