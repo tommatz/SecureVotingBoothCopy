@@ -31,7 +31,7 @@ const VoterRegistration = ({ url, setShow }) => {
     //onSubmit runs each time the submit button is clicked. It checks if the form is filled out correctly. If the form is filled out correctly then the postReq function is called.
     const onSubmit = (e) => {
         // causes page to not close even if sucessful
-        //e.preventDefault()
+        e.preventDefault()
 
         if(fields.first.value === "test" && debug === true) {
             setLogin({ "username": null, "address": null, "name": "Test User", "location": "Test, OH", "active": true })
@@ -54,12 +54,14 @@ const VoterRegistration = ({ url, setShow }) => {
         }
         else
             postReq()
+       
     }
 
     //The postReq function rearranges the login form input data to a schema that the backend accepts. It then attempts to make a POST request to the backend.
     //Depending on the data sent to the backend, the response will either be successful or return an error (such as invalid characters in name)
     //An error will require the user to attempt their login again. A successful login however will update the topbar and send the user to the voting page.
     const postReq = () => {
+        console.log("HERE")
         const user = {
             "first": fields["first"]["value"],
             "middle": fields["middle"]["value"],
@@ -81,7 +83,7 @@ const VoterRegistration = ({ url, setShow }) => {
             body: JSON.stringify({ "username": user, "address": address })
         };
 
-        fetch(url + "/voter/login", requestOptions)
+        fetch(url + "/voter/register", requestOptions)
             .then(async response => {
                 const isJson = response.headers.get('content-type')?.includes('application/json');
                 const data = isJson && await response.json();
@@ -90,15 +92,19 @@ const VoterRegistration = ({ url, setShow }) => {
                 if (!response.ok) {
                     // get error message from the backend response or default to response status (i.e. 404 Not Found)
                     const error = (data && typeof (data) == "object" && data["detail"][0]["msg"]) || (data && typeof (data) == "object" && data["detail"]) || response.status;
+                    
                     return Promise.reject(error);
                 }
 
                 setError("")
                 setFields(defaultLogin)//Reset fields on success
                 setLogin({ "username": user, "address": address, "name": fullName, "location": location, "active": true })
+                setShow("landing")
+                return (response)
             })
             .catch(error => {
                 setError(error)
+                return(error)
             });
     }
 
