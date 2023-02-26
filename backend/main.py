@@ -21,7 +21,7 @@ import copy
 import pickle
 
 from electionguard.ballot import PlaintextBallot, PlaintextBallotSelection, PlaintextBallotContest
-from electionguard_process import encrypt_ballot, keyCeremony
+from electionguard_process import encrypt_ballot, keyCeremony, cast_or_spoil
 
 
 Base.metadata.create_all(bind=engine)
@@ -100,9 +100,14 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
             f.write(pickle.dumps(eg_ballot))
             log_info("Created a PlaintextBallot")
 
+
+        encrypted_ballot = encrypt_ballot("data/electioninfo/metadata.p", "data/electioninfo/context.p", f"{BALLOT_STORE}/plaintext_ballots/ballot{eg_ballot.object_id}_plaintext.p")
+
         with open(f"{BALLOT_STORE}/encrypted_ballots/ballot{eg_ballot.object_id}_encrypt.p", 'wb') as f:
-            f.write(pickle.dumps(encrypt_ballot("data/electioninfo/metadata.p", "data/electioninfo/context.p", f"{BALLOT_STORE}/plaintext_ballots/ballot{eg_ballot.object_id}_plaintext.p")))
+            f.write(pickle.dumps(encrypted_ballot))
             log_info("Ballot successfully encrypted and pickled")
+
+        cast_or_spoil("data/electioninfo/metadata.p", "data/electioninfo/context.p", encrypted_ballot, ballot.spoiled)
 
 
         for contest in ballot.contests:
