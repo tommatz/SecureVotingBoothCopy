@@ -73,11 +73,6 @@ def setup_election(manifest : UploadFile = File(...), database : Session = Depen
     # assuming the problem is caused by the byte offset being changed when it is read in
     with open(f"data/{manifest.filename}", "rb") as file:
         manifest : Manifest = Manifest(**json.load(file))
-
-
-
-
-
     
     contests = manifest.contests
 

@@ -54,8 +54,8 @@ class Contest(BaseModel):
     votes_allowed : int
     name : str
     ballot_selections : List[BallotSelection]
-    ballot_title: Optional[List[TextItem]]
-    ballot_subtitle: Optional[List[TextItem]]
+    ballot_title: Optional[TextItem]
+    ballot_subtitle: Optional[TextItem]
 
 class BallotStyle(BaseModel):
     object_id : str
