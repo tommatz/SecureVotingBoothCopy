@@ -18,6 +18,11 @@ from electionguard.key_ceremony import CeremonyDetails
 from manifest_schema import Manifest
 from electionguard.logs import log_info
 import copy
+import pickle
+
+from electionguard.ballot import PlaintextBallot, PlaintextBallotSelection, PlaintextBallotContest
+from electionguard_process import encrypt_ballot, keyCeremony
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -46,6 +51,31 @@ def get_db():
 @app.post("/voter/send_vote", tags=["Voting"])
 def recieve_ballot(ballot : Ballot, database : Session = Depends(get_db)):
 
+    ballot_contests = []
+    for contest in ballot.contests:
+        ballot_selections = []
+
+        for selection in contest.ballot_selections:
+            candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id).one()
+            ballot_selections.append(PlaintextBallotSelection(object_id=candidate.name, vote=selection.vote, is_placeholder_selection=False, write_in=False))
+        
+        ballot_contests.append(PlaintextBallotContest(object_id=contest.type, ballot_selections=ballot_selections))
+    
+    eg_ballot = PlaintextBallot(object_id=uuid.uuid4(), style_id="jefferson-county-ballot-style", contests=ballot_contests)
+
+
+    BALLOT_STORE = "data/electioninfo/ballots"
+
+    with open(f"{BALLOT_STORE}/plaintext_ballots/ballot{eg_ballot.object_id}_plaintext.p", 'wb') as f:
+        f.write(pickle.dumps(eg_ballot))
+        log_info("Created a PlaintextBallot")
+
+    with open(f"{BALLOT_STORE}/encrypted_ballots/ballot{eg_ballot.object_id}_encrypt.p", 'wb') as f:
+        f.write(pickle.dumps(encrypt_ballot("data/electioninfo/metadata.p", "data/electioninfo/context.p", f"{BALLOT_STORE}/plaintext_ballots/ballot{eg_ballot.object_id}_plaintext.p")))
+        log_info("Ballot successfully encrypted and pickled")
+
+
+   
     for contest in ballot.contests:
         for selection in contest.ballot_selections:
             candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id).one()
@@ -63,8 +93,6 @@ def get_setup(database : Session = Depends(get_db)):
 @app.post("/guardian/setup_election", tags=["Contest Setup"])
 def setup_election(manifest : UploadFile = File(...), database : Session = Depends(get_db)):
 
-
-
     with open(f"data/{manifest.filename}", "wb") as wf:
         wf.write(manifest.file.read())
         log_info(f"wrote manifest file into data/{manifest.filename}")   
@@ -73,7 +101,7 @@ def setup_election(manifest : UploadFile = File(...), database : Session = Depen
     # assuming the problem is caused by the byte offset being changed when it is read in
     with open(f"data/{manifest.filename}", "rb") as file:
         manifest : Manifest = Manifest(**json.load(file))
-    
+     
     contests = manifest.contests
 
     for contest in contests:
@@ -206,6 +234,8 @@ def set_key_ceremony(key_ceremony_info : KeyCeremonyInfo, database: Session = De
     ceremony = ElectionInfo(name=key_ceremony_info.name, guardians=key_ceremony_info.guardians, quorum=key_ceremony_info.quorum)
     database.add(ceremony)
     database.commit()
+    keyCeremony(key_ceremony_info.guardians, key_ceremony_info.quorum)
+    
 
 
 

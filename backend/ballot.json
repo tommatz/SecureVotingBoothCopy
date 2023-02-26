@@ -1,56 +1,38 @@
 {
     "contests": [
       {    
-        "type": "Primary",
+        "type": "Justice of the Supreme Court",
         "ballot_selections": [
           {
-            "id": 0,
+            "id": 1,
             "vote": false
           },
           {
-            "id" : 1,
+            "id" : 2,
             "vote" : false
           },
           {
-            "id" : 2,
+            "id" : 3,
             "vote" : true
-          }
+          },
+          {
+            "id" : 4,
+            "vote" : false
+          }          
         ]
     },
     {
-      "type": "Secondary",
+      "type": "The Pineapple Question",
       "ballot_selections": [
         {
-          "id": 0,
+          "id": 1,
           "vote": false
-        },
-        {
-          "id" : 1,
-          "vote" : false
         },
         {
           "id" : 2,
           "vote" : true
         }
       ]
-    },
-    {
-      "type": "Governor",
-      "ballot_selections": [
-        {
-          "id": 0,
-          "vote": false
-        },
-        {
-          "id" : 1,
-          "vote" : false
-        },
-        {
-          "id" : 2,
-          "vote" : true
-        }
-      ]      
     }
-
     ]
   }

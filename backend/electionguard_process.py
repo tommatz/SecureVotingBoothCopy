@@ -30,12 +30,12 @@ def distributeKeys(guardians):
 
 
 
-def keyCeremony():
-    election_description = from_file(Manifest, "election-manifest.json")
+def keyCeremony(no_guardians, no_quorum):
+    election_description = from_file(Manifest, "data/manifest.json")
 
     builder = ElectionBuilder(
-        number_of_guardians=2, 
-        quorum=1,  
+        number_of_guardians=no_guardians, 
+        quorum=no_quorum,  
         manifest=election_description
     )
 
@@ -88,7 +88,7 @@ def keyCeremony():
 
 
 
-def encrypt(metadata_path, context_path, ballot_path):
+def encrypt_ballot(metadata_path, context_path, ballot_path):
 
     # arg0: device_id - Unique identifier for the encryption deivce
     # arg1: session_id - used to identify session
@@ -103,12 +103,14 @@ def encrypt(metadata_path, context_path, ballot_path):
     with open(context_path, 'rb') as file:
         context = pickle.loads(file.read())
 
+    with open(ballot_path, 'rb') as file:
+        ballot = pickle.loads(file.read())
+
     encrypter = EncryptionMediator(internal_metadata, context, device)
-    ballot = from_file(PlaintextBallot, ballot_path)
 
     return encrypter.encrypt(ballot)
 
 
 
-keyCeremony()
-reestablishGuardians()
+#keyCeremony()
+#reestablishGuardians()
