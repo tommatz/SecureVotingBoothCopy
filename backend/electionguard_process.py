@@ -8,6 +8,8 @@ from electionguard.key_ceremony_mediator import KeyCeremonyMediator
 from electionguard.utils import get_optional
 from electionguard.encrypt import EncryptionDevice, EncryptionMediator, generate_device_uuid
 from electionguard.ballot import PlaintextBallot, PlaintextBallotSelection, PlaintextBallotContest
+from electionguard.logs import log_info
+
 
 import pickle
 
@@ -85,10 +87,8 @@ def keyCeremony(no_guardians, no_quorum):
 
 
 
-
-
-
-def encrypt_ballot(metadata_path, context_path, ballot_path):
+    with open(f'data/electioninfo/ballots/store.p', 'wb') as f:
+        f.write(pickle.dumps(DataStore()))
 
     # arg0: device_id - Unique identifier for the encryption deivce
     # arg1: session_id - used to identify session
@@ -97,14 +97,25 @@ def encrypt_ballot(metadata_path, context_path, ballot_path):
     device = EncryptionDevice(generate_device_uuid(), "Session", 5678, "polling-place-one")
 
 
-    with open(metadata_path, 'rb') as file:
-        internal_metadata = pickle.loads(file.read())
+    with open(f'data/electioninfo/encryption/encrpytion_device.p', 'wb') as f:
+        f.write(pickle.dumps(device))
 
-    with open(context_path, 'rb') as file:
-        context = pickle.loads(file.read())
+def load_pickle(path):
+    with open(path, 'rb') as file:
+        return pickle.loads(file.read())
 
-    with open(ballot_path, 'rb') as file:
-        ballot = pickle.loads(file.read())
+def encrypt_ballot(metadata_path, context_path, ballot_path):
+
+    # arg0: device_id - Unique identifier for the encryption deivce
+    # arg1: session_id - used to identify session
+    # arg2: launch_code - election initilization value
+    # arg3: location - string used to identify location of device
+    device = load_pickle("data/electioninfo/encryption/encrpytion_device.p")
+
+
+    internal_metadata = load_pickle(metadata_path)
+    context = load_pickle(context_path)
+    ballot = load_pickle(ballot_path)
 
     encrypter = EncryptionMediator(internal_metadata, context, device)
 
@@ -112,5 +123,33 @@ def encrypt_ballot(metadata_path, context_path, ballot_path):
 
 
 
+from electionguard.ballot_box import BallotBox
+from electionguard.data_store import DataStore
+
+def cast_or_spoil(metadata_path, context_path, encrypted_ballot, spoiled):
+    internal_metadata = load_pickle(metadata_path)
+    context = load_pickle(context_path)
+    store = load_pickle('data/electioninfo/ballots/store.p')
+
+    ballot_box = BallotBox(internal_metadata, context, store)
+    log_info("Ballot box successfully created")
+    log_info(ballot_box)
+
+    if not spoiled:
+        ballot_box.cast(encrypted_ballot)
+        log_info("Successfully casted ballot")
+    else:
+        ballot_box.spoil(encrypted_ballot)
+        log_info("Successfully spoiled ballot")
+
+    with open('data/electioninfo/ballots/store.p', 'wb') as f:
+        f.write(pickle.dumps(store))
+    log_info("Successfully pickled datastore")
+
+
+
 #keyCeremony()
 #reestablishGuardians()
+#cast_or_spoil("data/electioninfo/metadata.p", "data/electioninfo/context.p")
+
+#encrypt_ballot("data/electioninfo/metadata.p", "data/electioninfo/context.p", "data/electioninfo/ballots/plaintext_ballots/ballot01f4d0ac-caf9-44e2-95c9-81cb15858631_plaintext.p")
