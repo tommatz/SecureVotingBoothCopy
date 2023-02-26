@@ -36,7 +36,7 @@ class User(Base):
     city = Column(String, index=True)
     postal_code = Column(String, index=True)
     street_address = Column(String, index=True)
-    voted = Column(Boolean, index=True)
+    voted = Column(Boolean, default=False, index=True)
 
     @hybrid_property
     def fullname(self):
