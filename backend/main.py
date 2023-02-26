@@ -49,40 +49,77 @@ def get_db():
         db.close()
         
 @app.post("/voter/send_vote", tags=["Voting"])
-def recieve_ballot(ballot : Ballot, database : Session = Depends(get_db)):
+def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session = Depends(get_db)):
 
-    ballot_contests = []
-    for contest in ballot.contests:
-        ballot_selections = []
 
-        for selection in contest.ballot_selections:
-            candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id).one()
-            ballot_selections.append(PlaintextBallotSelection(object_id=candidate.name, vote=selection.vote, is_placeholder_selection=False, write_in=False))
+    username = login_info.username
+    address = login_info.address
+    login_user = User( #need to create this for the hybrid properties
+        first = username.first,
+        middle = username.middle,
+        last = username.last,
+        suffix = username.suffix,
+        country_code = address.country_code,
+        country_area = address.country_area,
+        city = address.city,
+        postal_code = address.postal_code,
+        street_address = address.street_address
+    )
+
+
+    results : List[User] = database.query(User).filter(User.first == username.first).filter(User.last == username.last).all()
+    found = results[0]
+
+    for result in results:
+        if login_user.fullname == result.fullname and login_user.address == result.address:
+            found = result
+
+    print(found.voted)
+
+    if found.voted == False:
+        if ballot.spoiled == False:
+            found.voted = True #mark that the user has voted
+            database.commit()
+
+        ballot_contests = []
+        for contest in ballot.contests:
+            ballot_selections = []
+
+            for selection in contest.ballot_selections:
+                candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id).one()
+                ballot_selections.append(PlaintextBallotSelection(object_id=candidate.name, vote=selection.vote, is_placeholder_selection=False, write_in=False))
+            
+            ballot_contests.append(PlaintextBallotContest(object_id=contest.type, ballot_selections=ballot_selections))
         
-        ballot_contests.append(PlaintextBallotContest(object_id=contest.type, ballot_selections=ballot_selections))
+        eg_ballot = PlaintextBallot(object_id=uuid.uuid4(), style_id="jefferson-county-ballot-style", contests=ballot_contests)
+
+
+        BALLOT_STORE = "data/electioninfo/ballots"
+
+        with open(f"{BALLOT_STORE}/plaintext_ballots/ballot{eg_ballot.object_id}_plaintext.p", 'wb') as f:
+            f.write(pickle.dumps(eg_ballot))
+            log_info("Created a PlaintextBallot")
+
+        with open(f"{BALLOT_STORE}/encrypted_ballots/ballot{eg_ballot.object_id}_encrypt.p", 'wb') as f:
+            f.write(pickle.dumps(encrypt_ballot("data/electioninfo/metadata.p", "data/electioninfo/context.p", f"{BALLOT_STORE}/plaintext_ballots/ballot{eg_ballot.object_id}_plaintext.p")))
+            log_info("Ballot successfully encrypted and pickled")
+
+
+        for contest in ballot.contests:
+           for selection in contest.ballot_selections:
+                candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id).one()
+                candidate.votes = candidate.votes + int(selection.vote)
+        database.commit()
+        return {"info" : "Ballot Succesfully Recieved"}
+
+    return {"info" : "Failed. Attempt at double voting"}
     
-    eg_ballot = PlaintextBallot(object_id=uuid.uuid4(), style_id="jefferson-county-ballot-style", contests=ballot_contests)
 
 
-    BALLOT_STORE = "data/electioninfo/ballots"
-
-    with open(f"{BALLOT_STORE}/plaintext_ballots/ballot{eg_ballot.object_id}_plaintext.p", 'wb') as f:
-        f.write(pickle.dumps(eg_ballot))
-        log_info("Created a PlaintextBallot")
-
-    with open(f"{BALLOT_STORE}/encrypted_ballots/ballot{eg_ballot.object_id}_encrypt.p", 'wb') as f:
-        f.write(pickle.dumps(encrypt_ballot("data/electioninfo/metadata.p", "data/electioninfo/context.p", f"{BALLOT_STORE}/plaintext_ballots/ballot{eg_ballot.object_id}_plaintext.p")))
-        log_info("Ballot successfully encrypted and pickled")
 
 
-   
-    for contest in ballot.contests:
-        for selection in contest.ballot_selections:
-            candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id).one()
-            candidate.votes = candidate.votes + int(selection.vote)
-    database.commit()
-    
-    return {"info" : "Ballot Succesfully Recieved"}
+
+
 
 @app.get("/voter/get_setup", response_model=DBContests, tags=["Contest Setup"])
 def get_setup(database : Session = Depends(get_db)):
