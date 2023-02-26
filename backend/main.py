@@ -15,6 +15,13 @@ from typing import Optional
 from sqlalchemy.orm import Session
 import uuid
 from electionguard.key_ceremony import CeremonyDetails
+from manifest_schema import Manifest
+from electionguard.logs import log_info
+import copy
+import pickle
+
+from electionguard.ballot import PlaintextBallot, PlaintextBallotSelection, PlaintextBallotContest
+from electionguard_process import encrypt_ballot, keyCeremony
 
 
 Base.metadata.create_all(bind=engine)
@@ -42,46 +49,40 @@ def get_db():
         db.close()
         
 @app.post("/voter/send_vote", tags=["Voting"])
-def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session = Depends(get_db)):
+def recieve_ballot(ballot : Ballot, database : Session = Depends(get_db)):
 
-    print(ballot.spoiled) #I accidentally did this issue on my iss99 branch. Adding a print so theres something on this br
-    username = login_info.username
-    address = login_info.address
+    ballot_contests = []
+    for contest in ballot.contests:
+        ballot_selections = []
 
-    login_user = User( #need to create this for the hybrid properties
-        first = username.first,
-        middle = username.middle,
-        last = username.last,
-        suffix = username.suffix,
-
-        country_code = address.country_code,
-        country_area = address.country_area,
-        city = address.city,
-        postal_code = address.postal_code,
-        street_address = address.street_address
-    )
-
-    results : List[User] = database.query(User).filter(User.first == username.first).filter(User.last == username.last).all()
-    found = results[0]
-
-    for result in results:
-        if login_user.fullname == result.fullname and login_user.address == result.address:
-            found = result
-
-    if found.voted == False:
-        if ballot.spoiled == False:
-            found.voted = True #mark that the user has voted
-            database.commit()
-
-        for contest in ballot.contests:
-           for selection in contest.ballot_selections:
-                candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id).one()
-                candidate.votes = candidate.votes + int(selection.vote)
-        database.commit()
-        return {"info" : "Ballot Succesfully Recieved"}
+        for selection in contest.ballot_selections:
+            candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id).one()
+            ballot_selections.append(PlaintextBallotSelection(object_id=candidate.name, vote=selection.vote, is_placeholder_selection=False, write_in=False))
+        
+        ballot_contests.append(PlaintextBallotContest(object_id=contest.type, ballot_selections=ballot_selections))
     
-    return {"info" : "Failed. Attempt at double voting"}
+    eg_ballot = PlaintextBallot(object_id=uuid.uuid4(), style_id="jefferson-county-ballot-style", contests=ballot_contests)
 
+
+    BALLOT_STORE = "data/electioninfo/ballots"
+
+    with open(f"{BALLOT_STORE}/plaintext_ballots/ballot{eg_ballot.object_id}_plaintext.p", 'wb') as f:
+        f.write(pickle.dumps(eg_ballot))
+        log_info("Created a PlaintextBallot")
+
+    with open(f"{BALLOT_STORE}/encrypted_ballots/ballot{eg_ballot.object_id}_encrypt.p", 'wb') as f:
+        f.write(pickle.dumps(encrypt_ballot("data/electioninfo/metadata.p", "data/electioninfo/context.p", f"{BALLOT_STORE}/plaintext_ballots/ballot{eg_ballot.object_id}_plaintext.p")))
+        log_info("Ballot successfully encrypted and pickled")
+
+
+   
+    for contest in ballot.contests:
+        for selection in contest.ballot_selections:
+            candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id).one()
+            candidate.votes = candidate.votes + int(selection.vote)
+    database.commit()
+    
+    return {"info" : "Ballot Succesfully Recieved"}
 
 @app.get("/voter/get_setup", response_model=DBContests, tags=["Contest Setup"])
 def get_setup(database : Session = Depends(get_db)):
@@ -89,26 +90,41 @@ def get_setup(database : Session = Depends(get_db)):
 
 
 
-@app.post("/guardian/upload_manifest", tags=["Contest Setup"])
-def upload_manifest(manifest : UploadFile = File(...), database : Session = Depends(get_db)):
-    
-    
-    manifest : DBContests = DBContests(**json.load(manifest.file))
-    
+@app.post("/guardian/setup_election", tags=["Contest Setup"])
+def setup_election(manifest : UploadFile = File(...), database : Session = Depends(get_db)):
+
+    with open(f"data/{manifest.filename}", "wb") as wf:
+        wf.write(manifest.file.read())
+        log_info(f"wrote manifest file into data/{manifest.filename}")   
+
+    # Couldnt get it work without using the written manifest
+    # assuming the problem is caused by the byte offset being changed when it is read in
+    with open(f"data/{manifest.filename}", "rb") as file:
+        manifest : Manifest = Manifest(**json.load(file))
+     
     contests = manifest.contests
-    
+
     for contest in contests:
         ballot_selections = []
-        db_contest = Contest(type=contest.type)
-        
-        for selections in contest.ballot_selections:
-            ballot_selections.append(BallotSelection(id=selections.id, name=selections.name, party=selections.party, image_uri=selections.image_uri))
+        db_contest = Contest(type=contest.name)
+
+        for selection in contest.ballot_selections:
+            candidate_id = selection.candidate_id
+            party : Optional[str] = ""
+            image_uri : Optional[str] = ""
+            
+            for partyl in manifest.candidates:
+                if partyl.object_id == candidate_id:
+                    party = partyl.party_id
+                    image_uri = partyl.image_uri
+
+            ballot_selections.append(BallotSelection(id=selection.sequence_order, name=selection.object_id, party=party, image_uri=image_uri))
 
         db_contest.ballot_selections.extend(ballot_selections)
         database.add(db_contest)
-        ballot_selections = []
     database.commit()
         
+
     return {"info" : "file sucessfully saved"}
 
 
@@ -167,11 +183,8 @@ def receive_login(login_info : LoginInfo, database: Session = Depends(get_db)):
 
     for result in results:
         if login_user.fullname == result.fullname and login_user.address == result.address:
-            if result.voted == False:
-                return login_info
-            else:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User has already voted")
-
+            return login_info
+        
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User is not registered to vote.")
 
 
@@ -190,8 +203,7 @@ def register(login_info : LoginInfo, database: Session = Depends(get_db)):
         country_area = address.country_area,
         city = address.city,
         postal_code = address.postal_code,
-        street_address = address.street_address,
-        voted = False
+        street_address = address.street_address
     )
 
     results : List[User] = database.query(User).filter(User.first == username.first).filter(User.last == username.last).all()
@@ -222,6 +234,8 @@ def set_key_ceremony(key_ceremony_info : KeyCeremonyInfo, database: Session = De
     ceremony = ElectionInfo(name=key_ceremony_info.name, guardians=key_ceremony_info.guardians, quorum=key_ceremony_info.quorum)
     database.add(ceremony)
     database.commit()
+    keyCeremony(key_ceremony_info.guardians, key_ceremony_info.quorum)
+    
 
 
 

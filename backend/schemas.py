@@ -20,8 +20,8 @@ class Ballot(BaseModel):
 class DBBallotSelection(BaseModel):
     id : int
     name : str
-    party : str
-    image_uri : str
+    party : Optional[str]
+    image_uri : Optional[str]
     
     class Config:
         orm_mode = True
