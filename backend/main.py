@@ -87,7 +87,7 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
 
             for selection in contest.ballot_selections:
                 candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id).one()
-                ballot_selections.append(PlaintextBallotSelection(object_id=candidate.name, vote=selection.vote, is_placeholder_selection=False, write_in=False))
+                ballot_selections.append(PlaintextBallotSelection(object_id=candidate.name, vote=int(selection.vote), is_placeholder_selection=False, write_in=False))
             
             ballot_contests.append(PlaintextBallotContest(object_id=contest.type, ballot_selections=ballot_selections))
         
