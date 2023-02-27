@@ -26,7 +26,7 @@ The backend and the frontend should be run seperately.
 
 ### Frontend
 
-1. In the frontend navigate either to <code>guardian</code> or <code>voter</code> directory
+1. In the frontend navigate either to <code>voter</code>, <code>guardian</code>, or <code>verifier</code> directory
 2. Execute the <code>npm install</code> command to ensuire all requirements are installed
 3. Execute the program using <code>npm start</code> to run the program
  
