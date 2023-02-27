@@ -9,6 +9,8 @@ from electionguard.utils import get_optional
 from electionguard.encrypt import EncryptionDevice, EncryptionMediator, generate_device_uuid
 from electionguard.ballot import PlaintextBallot, PlaintextBallotSelection, PlaintextBallotContest
 from electionguard.logs import log_info
+from electionguard.guardian import Guardian
+from typing import List
 
 
 import pickle
@@ -31,13 +33,13 @@ def distributeKeys(guardians):
         pickle.dump(guardians[i], open( "data/keys/Key"+str(i+1)+".p", "wb" ))
 
 
-
-def keyCeremony(no_guardians, no_quorum):
+def keyCeremony():
     election_description = from_file(Manifest, "data/manifest.json")
+    election_info = load_pickle("data/ceremony_info.p")
 
     builder = ElectionBuilder(
-        number_of_guardians=no_guardians, 
-        quorum=no_quorum,  
+        number_of_guardians=election_info["no_guardians"], 
+        quorum=election_info["no_quorum"],  
         manifest=election_description
     )
 
@@ -148,8 +150,50 @@ def cast_or_spoil(metadata_path, context_path, encrypted_ballot, spoiled):
 
 
 
+from electionguard.tally import CiphertextTally
+from electionguard.decryption_mediator import DecryptionMediator
+from electionguard.ballot_box import get_ballots
+from electionguard.ballot import BallotBoxState
+def tally(metadata_path, context_path):
+    internal_metadata = load_pickle(metadata_path)
+    context = load_pickle(context_path)
+
+    tally = CiphertextTally("tally_test", internal_metadata, context)
+    encrypted_tally = load_pickle("data/electioninfo/ballots/store.p")
+    guardians : List[Guardian]= reestablishGuardians()
+    # Will also work like this but want more control rn -tally.batch_append(encrypted_tally, True)
+    # Run through all encrypted ballots and verify they are valid for the given election
+    for ballot in encrypted_tally.all():
+        tally.append(ballot, True)
+
+    print(len(tally))
+
+    mediator = DecryptionMediator("decrypt-med", context)
+    submitted_ballots = list(get_ballots(encrypted_tally, BallotBoxState.CAST).values())
+
+    for guardian in guardians:
+        guardian_key = guardian.share_key()
+        decryption_share = guardian.compute_tally_share(tally, context)
+        ballot_shares = guardian.compute_ballot_shares(submitted_ballots, context)
+        mediator.announce(guardian_key, decryption_share, ballot_shares)
+
+    plaintext_tally = mediator.get_plaintext_tally(tally, internal_metadata)
+
+    for contest_key, contest in plaintext_tally.contests.items():
+        print(f'Results for contest: {contest_key}')
+        for selection_key, selection in contest.selections.items():
+           print(f'{selection_key}: {selection.tally}')
+
+
+
+
+
 #keyCeremony()
 #reestablishGuardians()
 #cast_or_spoil("data/electioninfo/metadata.p", "data/electioninfo/context.p")
 
 #encrypt_ballot("data/electioninfo/metadata.p", "data/electioninfo/context.p", "data/electioninfo/ballots/plaintext_ballots/ballot01f4d0ac-caf9-44e2-95c9-81cb15858631_plaintext.p")
+if __name__ == '__main__':    
+    #print(load_pickle("data/electioninfo/ballots/plaintext_ballots/ballot1bdb09e2-38cf-4afd-b7a4-b77841b7bc1f_plaintext.p"))
+    tally("data/electioninfo/metadata.p", "data/electioninfo/context.p")
+    #print(load_pickle("data/electioninfo/ballots/plaintext_ballots/ballot1bdb09e2-38cf-4afd-b7a4-b77841b7bc1f_plaintext.p"))
