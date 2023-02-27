@@ -33,13 +33,13 @@ def distributeKeys(guardians):
         pickle.dump(guardians[i], open( "data/keys/Key"+str(i+1)+".p", "wb" ))
 
 
-
-def keyCeremony(no_guardians, no_quorum):
+def keyCeremony():
     election_description = from_file(Manifest, "data/manifest.json")
+    election_info = load_pickle("data/ceremony_info.p")
 
     builder = ElectionBuilder(
-        number_of_guardians=no_guardians, 
-        quorum=no_quorum,  
+        number_of_guardians=election_info["no_guardians"], 
+        quorum=election_info["no_quorum"],  
         manifest=election_description
     )
 
@@ -178,10 +178,6 @@ def tally(metadata_path, context_path):
         mediator.announce(guardian_key, decryption_share, ballot_shares)
 
     plaintext_tally = mediator.get_plaintext_tally(tally, internal_metadata)
-
-    #for something, s in mediator.get_plaintext_ballots(submitted_ballots, internal_metadata).items():
-        #for stuff, sf in s.all():
-           # print(stuff)
 
     for contest_key, contest in plaintext_tally.contests.items():
         print(f'Results for contest: {contest_key}')

@@ -91,7 +91,7 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
             
             ballot_contests.append(PlaintextBallotContest(object_id=contest.type, ballot_selections=ballot_selections))
         
-        eg_ballot = PlaintextBallot(object_id=uuid.uuid4(), style_id="jefferson-county-ballot-style", contests=ballot_contests)
+        eg_ballot = PlaintextBallot(object_id=uuid.uuid4(), style_id="harrison-township-ballot-style", contests=ballot_contests)
 
 
         BALLOT_STORE = "data/electioninfo/ballots"
@@ -165,6 +165,9 @@ def setup_election(manifest : UploadFile = File(...), database : Session = Depen
         db_contest.ballot_selections.extend(ballot_selections)
         database.add(db_contest)
     database.commit()
+
+
+    keyCeremony()
         
 
     return {"info" : "file sucessfully saved"}
@@ -276,7 +279,9 @@ def set_key_ceremony(key_ceremony_info : KeyCeremonyInfo, database: Session = De
     ceremony = ElectionInfo(name=key_ceremony_info.name, guardians=key_ceremony_info.guardians, quorum=key_ceremony_info.quorum)
     database.add(ceremony)
     database.commit()
-    keyCeremony(key_ceremony_info.guardians, key_ceremony_info.quorum)
+
+    with open("data/ceremony_info.p", "wb") as file:
+        file.write(pickle.dumps({"no_guardians" : key_ceremony_info.guardians, "no_quorum" : key_ceremony_info.quorum}))
     
 
 
