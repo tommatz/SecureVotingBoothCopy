@@ -148,7 +148,7 @@ def setup_election(manifest : UploadFile = File(...), database : Session = Depen
 
     for contest in contests:
         ballot_selections = []
-        db_contest = Contest(type=contest.name)
+        db_contest = Contest(type=contest.object_id)
 
         for selection in contest.ballot_selections:
             candidate_id = selection.candidate_id

@@ -179,10 +179,14 @@ def tally(metadata_path, context_path):
 
     plaintext_tally = mediator.get_plaintext_tally(tally, internal_metadata)
 
+    #for something, s in mediator.get_plaintext_ballots(submitted_ballots, internal_metadata).items():
+        #for stuff, sf in s.all():
+           # print(stuff)
+
     for contest_key, contest in plaintext_tally.contests.items():
         print(f'Results for contest: {contest_key}')
         for selection_key, selection in contest.selections.items():
-            print(f'{selection_key}: {selection.tally}')
+           print(f'{selection_key}: {selection.tally}')
 
 
 
@@ -196,3 +200,4 @@ def tally(metadata_path, context_path):
 if __name__ == '__main__':    
     #print(load_pickle("data/electioninfo/ballots/plaintext_ballots/ballot1bdb09e2-38cf-4afd-b7a4-b77841b7bc1f_plaintext.p"))
     tally("data/electioninfo/metadata.p", "data/electioninfo/context.p")
+    #print(load_pickle("data/electioninfo/ballots/plaintext_ballots/ballot1bdb09e2-38cf-4afd-b7a4-b77841b7bc1f_plaintext.p"))
