@@ -32,6 +32,14 @@ The backend and the frontend should be run seperately.
  
 ## Change Log
 
+**SPRINT 5** - *2/26/2023*
+
+- Added ballot encryption with ElectionGuard
+- Added tally decryption with ElectionGuard
+- Started on verifier frontend page
+- Reformated voting page to reflect client request
+- Added guardian initialization from keys
+
 **SPRINT 4** - *2/1/2023*
 
 - Added key ceremony frontend to guardians app
