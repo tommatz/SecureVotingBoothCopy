@@ -21,7 +21,7 @@ import copy
 import pickle
 
 from electionguard.ballot import PlaintextBallot, PlaintextBallotSelection, PlaintextBallotContest
-from electionguard_process import encrypt_ballot, keyCeremony, cast_or_spoil
+from electionguard_process import encrypt_ballot, keyCeremony, cast_or_spoil, tally
 
 
 Base.metadata.create_all(bind=engine)
@@ -283,7 +283,18 @@ def set_key_ceremony(key_ceremony_info : KeyCeremonyInfo, database: Session = De
     with open("data/ceremony_info.p", "wb") as file:
         file.write(pickle.dumps({"no_guardians" : key_ceremony_info.guardians, "no_quorum" : key_ceremony_info.quorum}))
     
+@app.post("/guardian/tally_decrypt", tags=["Tally Decrypt"])
+def tally_decrypt():
+    plaintext_tally =  tally("data/electioninfo/metadata.p", "data/electioninfo/context.p")
 
+    tally_dict = {}
+
+
+    for contest_key, contest in plaintext_tally.contests.items():
+        tally_dict[contest_key] = []
+        for selection_key, selection in contest.selections.items():
+           tally_dict[contest_key].append({selection_key : selection.tally})
+    return tally_dict
 
 
 # Sample for test - https://github.com/microsoft/electionguard/blob/main/data/1.0.0-preview-1/sample/hamilton-general/election_private_data/plaintext_ballots/plaintext_ballot_5a150c74-a2cb-47f6-b575-165ba8a4ce53.json
