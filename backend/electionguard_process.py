@@ -179,10 +179,7 @@ def tally(metadata_path, context_path):
 
     plaintext_tally = mediator.get_plaintext_tally(tally, internal_metadata)
 
-    for contest_key, contest in plaintext_tally.contests.items():
-        print(f'Results for contest: {contest_key}')
-        for selection_key, selection in contest.selections.items():
-           print(f'{selection_key}: {selection.tally}')
+    return plaintext_tally
 
 
 
