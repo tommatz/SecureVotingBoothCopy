@@ -274,7 +274,7 @@ def get_ceremony_info(name : str, database : Session = Depends(get_db)):
     return ceremony_info
 
 
-@app.get("/verifer/get_verifier_id", tags=["Verification"])
+@app.get("/verifier/get_verifier_id", tags=["Verification"])
 def get_verifier_id():
     id = uuid.uuid4()
     return id
