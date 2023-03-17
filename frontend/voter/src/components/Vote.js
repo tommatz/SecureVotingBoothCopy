@@ -14,6 +14,7 @@ const Vote = ({ contests, url, login, setLogin }) => {
 
     const [selected, setSelected] = useState(getDefaultBallot) //Holds the currently selected candidate data
     const [currentContest, setCurrentContest] = useState(cNames[0])
+    const [verifierID, setVerifierID] = useState("")
 
     //makeSelection is the function that controls the currently selected candidate data.
     //It requires the contest and candidate as parameters, and then sets the selected variable with this new information.
@@ -56,6 +57,17 @@ const Vote = ({ contests, url, login, setLogin }) => {
                     console.log(data["detail"])
                     return Promise.reject(error);
                 }
+                
+                //this verifier ID code will need to be moved to wherever the logic behind the success page is when that is completed
+                try {
+                    const response = await fetch(url + "/verifier/get_verifier_id");
+                    const result = await response.json();
+                    console.log(result);
+                    setVerifierID(result)
+                } catch(error) {
+                    console.error(error);
+                    setVerifierID("Error")
+                };
 
                 setLogin({ "username": null, "address": null, "name": "", "location": "", "active": false })
             })
@@ -72,9 +84,9 @@ const Vote = ({ contests, url, login, setLogin }) => {
                         <h1 className="text-2xl sm:text-4xl p-4 font-bold text-black dark:text-white transition-colors duration-500">{contest} Contest</h1>
                         <div className="grid p-4">
                             {contests[contest].map((candidate) => (
-                                <div onClick={() => makeSelection(contest, candidate["id"])} key={contest + " " + candidate["id"]} className="flex flex-row items-center p-4 -mt-1 border-4 border-black dark:border-white transition-colors duration-500">
+                                <div onClick={() => makeSelection(contest, candidate["id"] - 1)} key={contest + " " + candidate["id"]} className="flex flex-row items-center p-4 -mt-1 border-4 border-black dark:border-white transition-colors duration-500">
                                     <div className="cursor-pointer betterhover:hover:bg-neutral-400 dark:betterhover:hover:bg-slate-800 border-4 border-black dark:border-white transition-colors duration-500">
-                                        <span className={`p-2 text-lg sm:text-xl md:text-2xl font-bold dark:text-white transition-all duration-500 ${selected[contest] === candidate["id"] ? 'opacity-1' : 'opacity-0'}`}>&#10004;</span>
+                                        <span className={`p-2 text-lg sm:text-xl md:text-2xl font-bold dark:text-white transition-all duration-500 ${selected[contest] === candidate["id"] -1 ? 'opacity-1' : 'opacity-0'}`}>&#10004;</span>
                                     </div>
                                     <div className="w-full flex flex-col px-4 items-center text-black dark:text-white transition-colors duration-500">
                                         <p className="text-lg sm:text-xl md:text-2xl font-bold">{candidate["name"]}</p>
