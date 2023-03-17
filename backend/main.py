@@ -274,6 +274,12 @@ def get_ceremony_info(name : str, database : Session = Depends(get_db)):
     return ceremony_info
 
 
+@app.get("/verifier/get_verifier_id", tags=["Verification"])
+def get_verifier_id():
+    id = uuid.uuid4()
+    return id
+
+
 @app.post("/guardian/set_key_ceremony", tags=["Contest Setup"])
 def set_key_ceremony(key_ceremony_info : KeyCeremonyInfo, database: Session = Depends(get_db)):
     ceremony = ElectionInfo(name=key_ceremony_info.name, guardians=key_ceremony_info.guardians, quorum=key_ceremony_info.quorum)
