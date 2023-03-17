@@ -12,8 +12,8 @@ from electionguard.logs import log_info
 from electionguard.guardian import Guardian
 from typing import List
 
-
 import pickle
+
 
 def reestablishGuardians():
     directory = 'data/keys'
@@ -30,7 +30,17 @@ def reestablishGuardians():
 
 def distributeKeys(guardians):
     for i in range(len(guardians)):
-        pickle.dump(guardians[i], open( "data/keys/Key"+str(i+1)+".p", "wb" ))
+
+        usb_path = "/Volumes/Guardian" + str(i+1)
+        #file_path = "/Volumes/Guardian" + str(i+1) + "/Key"+ str(i+1) +".p" #need path of possible lingering keys
+
+        if os.path.isdir(usb_path):
+            #if os.path.isfile(file_path): #remove lingering keys
+            #    os.remove(file_path) 
+
+            pickle.dump(guardians[i], open( "/Volumes/Guardian" + str(i+1) + "/Key"+str(i+1)+".p", "wb" )) #populate new keys
+        else:
+            pickle.dump(guardians[i], open( "data/keys/Key"+str(i+1)+".p", "wb" )) #if usb fails, save to local area
 
 
 def keyCeremony():
