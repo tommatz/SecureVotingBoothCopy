@@ -15,7 +15,17 @@ from typing import List
 import pickle
 
 
+def sanitizeHardwareKeys():
+    directory = '/Volumes'
+    for filename in os.listdir(directory):
+        f = os.path.join(directory, filename)
+        print(filename)
+        if os.path.isfile(f) == False or filename[0:2] != "Key": 
+            os.remove(f)
+
+
 def reestablishGuardians():
+    sanitizeHardwareKeys()
     directory = 'data/keys'
     guardian_list = []
     for filename in os.listdir(directory):
