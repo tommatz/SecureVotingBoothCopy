@@ -12,10 +12,26 @@ from electionguard.logs import log_info
 from electionguard.guardian import Guardian
 from typing import List
 
-
 import pickle
 
+def sanitizeKey(path):
+    for filename in os.listdir(path):
+        f = os.path.join(path, filename)
+        print(filename)
+        if (os.path.isfile(f) == False or filename[0:3].upper() != "KEY") and (filename != "System Volume Information" and filename != "Recovery") and (filename[0:1] != "."): 
+            os.remove(f)
+
+
+def sanitizeHardwareKeys():
+    directory = '/Volumes' #works on mac
+    for filename in os.listdir(directory):
+        f = os.path.join(directory, filename)
+        if os.path.isdir(f) and filename[0:8].upper() == "GUARDIAN":
+            sanitizeKey(f)
+
+
 def reestablishGuardians():
+    sanitizeHardwareKeys()
     directory = 'data/keys'
     guardian_list = []
     for filename in os.listdir(directory):
