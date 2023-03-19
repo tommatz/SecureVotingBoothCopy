@@ -1,8 +1,11 @@
 const Success = ({ login, setLogin, verifierID, setVerifierID }) => {
 
     const onSubmit = (e) => {
+        //prevents close of form
         e.preventDefault()
+        //resets verifier Id for which window to show
         setVerifierID("")
+        //resets login info for which window to show
         setLogin({ "username": null, "address": null, "name": "", "location": "", "active": false })
     }
 
@@ -17,7 +20,7 @@ const Success = ({ login, setLogin, verifierID, setVerifierID }) => {
                         <text>{verifierID}</text>
                     </div>
                     {/* {error !== "" && <p className="text-red-600 font-bold w-full">{error}</p>} */}
-                    <input type='submit' value='Complete' className={("w-1/2 p-4 rounded-full cursor-pointer border-2 text-black dark:text-white border-black dark:border-white transition-all duration-500 betterhover:hover:scale-110 betterhover:hover:bg-green-300 dark:betterhover:hover:bg-slate-700")} />
+                    <input type='Exit' value='Complete' className={("w-1/2 p-4 rounded-full cursor-pointer border-2 text-black dark:text-white border-black dark:border-white transition-all duration-500 betterhover:hover:scale-110 betterhover:hover:bg-green-300 dark:betterhover:hover:bg-slate-700")} />
                     
                 </form>
             </div>
