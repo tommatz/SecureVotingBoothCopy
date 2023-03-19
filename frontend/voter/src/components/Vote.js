@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-const Vote = ({ contests, url, login, setLogin }) => {
+const Vote = ({ contests, url, login, setLogin,verifierID, setVerifierID }) => {
 
     const cNames = Object.keys(contests) //Returns array of the contests object children names Example: ["Primary", "Secondary"]
 
@@ -14,7 +14,8 @@ const Vote = ({ contests, url, login, setLogin }) => {
 
     const [selected, setSelected] = useState(getDefaultBallot) //Holds the currently selected candidate data
     const [currentContest, setCurrentContest] = useState(cNames[0])
-    const [verifierID, setVerifierID] = useState("")
+    // moved to app.js
+    //const [verifierID, setVerifierID] = useState("")
 
     //makeSelection is the function that controls the currently selected candidate data.
     //It requires the contest and candidate as parameters, and then sets the selected variable with this new information.
@@ -37,6 +38,7 @@ const Vote = ({ contests, url, login, setLogin }) => {
                     }
                 ]
             }
+            
         }
 
         const requestOptions = {
@@ -69,13 +71,13 @@ const Vote = ({ contests, url, login, setLogin }) => {
                     setVerifierID("Error")
                 };
 
-                setLogin({ "username": null, "address": null, "name": "", "location": "", "active": false })
+                
             })
             .catch(error => {
                 console.error(error)
             });
     }
-
+    
     return (
         <>{/* This empty html is needed because react components can only return one parent element and there is a section for both vote and bottombar */}
             <section id="vote" className="h-[90%] w-full grid overflow-y-auto"> {/* The 90% vertical height of the vote section is to fill the center of the screen (top bar takes 5% and bottom bar takes 5%) */}

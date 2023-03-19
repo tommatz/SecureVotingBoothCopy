@@ -3,6 +3,7 @@ import useServer from './components/useServer';
 import TopBar from './components/TopBar';
 import Login from './components/Login';
 import Vote from './components/Vote';
+import Success from './components/Success';
 
 const url = "http://localhost:8006";
 
@@ -16,6 +17,7 @@ function App() {
   }, [server, setServer])
 
   const [login, setLogin] = useState({"active" : false, "name" : "", "location" : ""})
+  const [verifierID, setVerifierID] = useState("")
 
   const [darkMode, setDarkMode] = useState(false); //Default is false
   
@@ -33,7 +35,8 @@ function App() {
   return (
       <header id='App' className={`h-screen w-screen transition-colors duration-500 ${darkMode && 'dark bg-slate-800'}`}>
         <TopBar darkMode={darkMode} setDarkMode={setDarkMode} login={login} setLogin={setLogin}/>
-        {login["active"] === false ? <Login url={url} setLogin={setLogin}/> : <Vote contests={server["contests"]} url={url} login={login} setLogin={setLogin} />}
+        {login["active"] === false ? <Login url={url} setLogin={setLogin}/> : verifierID === "" ? <Vote contests={server["contests"]} url={url} login={login} setLogin={setLogin} verifierID={verifierID} setVerifierID={setVerifierID } /> : <Success login={login} setLogin={setLogin} verifierID={verifierID} setVerifierID={setVerifierID}/>}
+        
       </header>
   );
 };
