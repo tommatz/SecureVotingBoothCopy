@@ -75,7 +75,7 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
             found = result
 
     print(found.voted)
-
+    found.voted = 0
     if found.voted == False:
         if ballot.spoiled == False:
             found.voted = True #mark that the user has voted
@@ -86,7 +86,7 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
             ballot_selections = []
 
             for selection in contest.ballot_selections:
-                candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id).one()
+                candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id+1).one()
                 ballot_selections.append(PlaintextBallotSelection(object_id=candidate.name, vote=int(selection.vote), is_placeholder_selection=False, write_in=False))
             
             ballot_contests.append(PlaintextBallotContest(object_id=contest.type, ballot_selections=ballot_selections))
@@ -112,7 +112,9 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
 
         for contest in ballot.contests:
            for selection in contest.ballot_selections:
-                candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id).one()
+                log_info(f"Contest type = {contest.type}")
+                log_info(f"voted id = {selection.id}")               
+                candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id+1).one()
                 candidate.votes = candidate.votes + int(selection.vote)
         database.commit()
         return {"info" : "Ballot Succesfully Recieved"}
