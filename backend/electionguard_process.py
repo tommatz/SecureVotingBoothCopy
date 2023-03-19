@@ -17,7 +17,6 @@ import pickle
 def sanitizeKey(path):
     for filename in os.listdir(path):
         f = os.path.join(path, filename)
-        print(filename)
         if (os.path.isfile(f) == False or filename[0:3].upper() != "KEY") and (filename != "System Volume Information" and filename != "Recovery") and (filename[0:1] != "."): 
             os.remove(f)
 
@@ -30,17 +29,32 @@ def sanitizeHardwareKeys():
             sanitizeKey(f)
 
 
+
 def reestablishGuardians():
     sanitizeHardwareKeys()
     directory = 'data/keys'
     guardian_list = []
-    for filename in os.listdir(directory):
-        f = os.path.join(directory, filename)
-        if os.path.isfile(f):
+    found = True
+    it = 0
+
+    while found == True: #scans until a guardian isnt found
+        it += 1
+        usb_path = "/Volumes/Guardian" + str(it)
+        if os.path.isdir(usb_path):
+            f = os.path.join(usb_path, "Key"+str(it)+".p")
             guardian = pickle.load(open(f, 'rb'))
             guardian_list.append(guardian)
 
+        else:
+            f = os.path.join(directory, "Key"+str(it)+".p")
+            if os.path.isfile(f):
+                guardian = pickle.load(open(f, 'rb'))
+                guardian_list.append(guardian)
+            else:
+                found = False
+
     return guardian_list
+
 
 
 def distributeKeys(guardians):
