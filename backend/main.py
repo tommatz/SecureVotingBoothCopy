@@ -91,7 +91,7 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
             
             ballot_contests.append(PlaintextBallotContest(object_id=contest.type, ballot_selections=ballot_selections))
         
-        eg_ballot = PlaintextBallot(object_id=uuid.uuid4(), style_id="harrison-township-ballot-style", contests=ballot_contests)
+        eg_ballot = PlaintextBallot(object_id=str(uuid.uuid4()), style_id="harrison-township-ballot-style", contests=ballot_contests)
 
 
         BALLOT_STORE = "data/electioninfo/ballots"
@@ -309,7 +309,11 @@ def tally_decrypt():
 def export_election_record():
     plaintext_tally =  tally("data/electioninfo/metadata.p", "data/electioninfo/context.p")
 
-    export_election_record()
+    export_records("data/manifest.json", "data/electioninfo/context.p", "data/electioninfo/election_constants.p",
+                   "data/electioninfo/encryption/encrpytion_device.p", "data/electioninfo/ballots/store.p",
+                   "data/electioninfo/plaintext_spoiled_ballots_.p", "data/electioninfo/ciphertext_tally.p",
+                   "data/electioninfo/plaintext_tally.p", "data/electioninfo/guardian_records.p",
+                   "data/electioninfo/coefficients.p", "data/election_record/")
     return {"Successfully exported election record"}
 
 

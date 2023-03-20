@@ -225,7 +225,7 @@ def tally(metadata_path, context_path):
     return plaintext_tally
 
 
-def export_election_record(manifest_path, context_path, constants_path, enc_device_path,
+def export_records(manifest_path, context_path, constants_path, enc_device_path,
                            submitted_ballots_path, spoiled_ballots_path, ciphertext_tally_path,
                             plaintext_tally_path, guaradian_record_path, coefficients_path,
                             election_record):
@@ -235,18 +235,16 @@ def export_election_record(manifest_path, context_path, constants_path, enc_devi
     encryption_device = load_pickle(enc_device_path)
     submitted_ballots = load_pickle(submitted_ballots_path).all() #datastore
     spoiled_ballots = load_pickle(spoiled_ballots_path).values()
-    ciphertext_tally = load_pickle(enc_device_path).publish()
+    ciphertext_tally = load_pickle(ciphertext_tally_path).publish()
     plaintext_tally = load_pickle(plaintext_tally_path)
+    guardian_records = load_pickle(guaradian_record_path)
 
 
     lagrange_coefficients = load_pickle(coefficients_path)
 
-    export_record(manifest, context, election_constants, encryption_device,
-                  submitted_ballots, )
-
-
-
-
+    export_record(manifest, context, election_constants, [encryption_device],
+                  submitted_ballots, spoiled_ballots, ciphertext_tally,
+                  plaintext_tally, guardian_records, lagrange_coefficients, election_record)
 
 
 #keyCeremony()
