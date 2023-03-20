@@ -15,8 +15,6 @@ from typing import List
 
 from electionguard.constants import ElectionConstants, get_constants
 from electionguard.election_polynomial import LagrangeCoefficientsRecord
-
-
 import pickle
 import shutil
 import win32api
@@ -326,7 +324,7 @@ def export_records(manifest_path, context_path, constants_path, enc_device_path,
     context = load_pickle(context_path)
     election_constants = load_pickle(constants_path)
     encryption_device = load_pickle(enc_device_path)
-    submitted_ballots = load_pickle(submitted_ballots_path).all() #datastore
+    submitted_ballots = load_pickle(submitted_ballots_path).all() # datastore
     spoiled_ballots = load_pickle(spoiled_ballots_path).values()
     ciphertext_tally = load_pickle(ciphertext_tally_path).publish()
     plaintext_tally = load_pickle(plaintext_tally_path)
@@ -346,7 +344,11 @@ def export_records(manifest_path, context_path, constants_path, enc_device_path,
 
 #encrypt_ballot("data/electioninfo/metadata.p", "data/electioninfo/context.p", "data/electioninfo/ballots/plaintext_ballots/ballot01f4d0ac-caf9-44e2-95c9-81cb15858631_plaintext.p")
 if __name__ == '__main__':    
-    pass
+    from datetime import datetime
+    ballot = load_pickle("data/electioninfo/ballots/encrypted_ballots/ballot000da3a6-3127-4a3f-9896-692f2f7fc4d2_encrypt.p")
+
+
     #print(load_pickle("data/electioninfo/ballots/plaintext_ballots/ballot1bdb09e2-38cf-4afd-b7a4-b77841b7bc1f_plaintext.p"))
-    print(tally("data/electioninfo/metadata.p", "data/electioninfo/context.p"))
+    #print(tally("data/electioninfo/metadata.p", "data/electioninfo/context.p"))
+
     #print(load_pickle("data/electioninfo/ballots/plaintext_ballots/ballot1bdb09e2-38cf-4afd-b7a4-b77841b7bc1f_plaintext.p"))
