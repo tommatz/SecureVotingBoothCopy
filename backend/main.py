@@ -21,7 +21,7 @@ import copy
 import pickle
 
 from electionguard.ballot import PlaintextBallot, PlaintextBallotSelection, PlaintextBallotContest
-from electionguard_process import encrypt_ballot, keyCeremony, cast_or_spoil, tally
+from electionguard_process import encrypt_ballot, export_records, keyCeremony, cast_or_spoil, tally
 
 
 Base.metadata.create_all(bind=engine)
@@ -75,7 +75,7 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
             found = result
 
     print(found.voted)
-
+    found.voted = 0
     if found.voted == False:
         if ballot.spoiled == False:
             found.voted = True #mark that the user has voted
@@ -86,12 +86,12 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
             ballot_selections = []
 
             for selection in contest.ballot_selections:
-                candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id).one()
+                candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id+1).one()
                 ballot_selections.append(PlaintextBallotSelection(object_id=candidate.name, vote=int(selection.vote), is_placeholder_selection=False, write_in=False))
             
             ballot_contests.append(PlaintextBallotContest(object_id=contest.type, ballot_selections=ballot_selections))
         
-        eg_ballot = PlaintextBallot(object_id=uuid.uuid4(), style_id="harrison-township-ballot-style", contests=ballot_contests)
+        eg_ballot = PlaintextBallot(object_id=str(uuid.uuid4()), style_id="harrison-township-ballot-style", contests=ballot_contests)
 
 
         BALLOT_STORE = "data/electioninfo/ballots"
@@ -112,7 +112,9 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
 
         for contest in ballot.contests:
            for selection in contest.ballot_selections:
-                candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id).one()
+                log_info(f"Contest type = {contest.type}")
+                log_info(f"voted id = {selection.id}")               
+                candidate = database.query(BallotSelection).filter(BallotSelection.owner_type == contest.type).filter(BallotSelection.id == selection.id+1).one()
                 candidate.votes = candidate.votes + int(selection.vote)
         database.commit()
         return {"info" : "Ballot Succesfully Recieved"}
@@ -301,6 +303,18 @@ def tally_decrypt():
         for selection_key, selection in contest.selections.items():
            tally_dict[contest_key].append({selection_key : selection.tally})
     return tally_dict
+
+
+@app.post("/guardian/export_records", tags=["Verify"])
+def export_election_record():
+    plaintext_tally =  tally("data/electioninfo/metadata.p", "data/electioninfo/context.p")
+
+    export_records("data/manifest.json", "data/electioninfo/context.p", "data/electioninfo/election_constants.p",
+                   "data/electioninfo/encryption/encrpytion_device.p", "data/electioninfo/ballots/store.p",
+                   "data/electioninfo/plaintext_spoiled_ballots_.p", "data/electioninfo/ciphertext_tally.p",
+                   "data/electioninfo/plaintext_tally.p", "data/electioninfo/guardian_records.p",
+                   "data/electioninfo/coefficients.p", "data/election_record/")
+    return {"Successfully exported election record"}
 
 
 # Sample for test - https://github.com/microsoft/electionguard/blob/main/data/1.0.0-preview-1/sample/hamilton-general/election_private_data/plaintext_ballots/plaintext_ballot_5a150c74-a2cb-47f6-b575-165ba8a4ce53.json
