@@ -13,12 +13,16 @@ from electionguard.guardian import Guardian
 from typing import List
 
 import pickle
+import shutil
 
 def sanitizeKey(path):
     for filename in os.listdir(path):
         f = os.path.join(path, filename)
-        if (os.path.isfile(f) == False or filename[0:3].upper() != "KEY") and (filename != "System Volume Information" and filename != "Recovery") and (filename[0:1] != "."): 
-            os.remove(f)
+        if (filename[0:3].upper() != "KEY") and (filename != "System Volume Information" and filename != "Recovery") and (filename[0:1] != "."): 
+            if os.path.isdir(f):
+               shutil.rmtree(f)
+            else:
+                os.remove(f)
 
 
 def sanitizeHardwareKeys():
