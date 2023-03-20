@@ -22,7 +22,10 @@ import pickle
 
 from electionguard.ballot import PlaintextBallot, PlaintextBallotSelection, PlaintextBallotContest
 from electionguard_process import encrypt_ballot, export_records, keyCeremony, cast_or_spoil, tally
-
+from random_word import RandomWords
+from datetime import datetime
+from electionguard.data_store import DataStore
+from electionguard.serialize import to_file
 
 Base.metadata.create_all(bind=engine)
 
@@ -75,7 +78,6 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
             found = result
 
     print(found.voted)
-    found.voted = 0
     if found.voted == False:
         if ballot.spoiled == False:
             found.voted = True #mark that the user has voted
@@ -91,7 +93,17 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
             
             ballot_contests.append(PlaintextBallotContest(object_id=contest.type, ballot_selections=ballot_selections))
         
-        eg_ballot = PlaintextBallot(object_id=str(uuid.uuid4()), style_id="harrison-township-ballot-style", contests=ballot_contests)
+        rand_gen = RandomWords()
+        id = str(uuid.uuid4().hex)
+        verifier_id = ""
+
+        for i in range(0, len(id), 4):
+            verifier_id += f"{rand_gen.get_random_word()}  {id[i:i+4]} "
+
+        verifier_id = verifier_id[:-1] # remove space at end of word
+        log_info(f"Verifier id of {verifier_id} generated")
+
+        eg_ballot = PlaintextBallot(object_id=id, style_id="harrison-township-ballot-style", contests=ballot_contests)
 
 
         BALLOT_STORE = "data/electioninfo/ballots"
@@ -102,6 +114,12 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
 
 
         encrypted_ballot = encrypt_ballot("data/electioninfo/metadata.p", "data/electioninfo/context.p", f"{BALLOT_STORE}/plaintext_ballots/ballot{eg_ballot.object_id}_plaintext.p")
+        enc_time = datetime.fromtimestamp(encrypted_ballot.timestamp)
+
+        formatted_time = enc_time.astimezone().strftime("%B %d, %Y %I:%M %p %Z") # In format (Month, Day, Year, Hours:Minutes, AM/PM, timezone)
+
+        verifier_info = {"linked_vote" : id, "verify_code" : verifier_id, "vote_time" : str(formatted_time), "location" : "polling-place1"}
+        to_file(verifier_info, verifier_id, "data/electioninfo/ballots/verifier_links/")
 
         with open(f"{BALLOT_STORE}/encrypted_ballots/ballot{eg_ballot.object_id}_encrypt.p", 'wb') as f:
             f.write(pickle.dumps(encrypted_ballot))
@@ -316,6 +334,33 @@ def export_election_record():
                    "data/electioninfo/coefficients.p", "data/election_record/")
     return {"Successfully exported election record"}
 
+from fast_autocomplete import AutoComplete
+import os
+
+@app.get("/verifier/suggestions", tags=["Verify"])
+def auto_corrections(search_query : str):
+    absolute_path = os.path.dirname(__file__)
+    full_path = os.path.join(absolute_path, "data/electioninfo/ballots/verifier_links")
+    verificaation_names = os.listdir(full_path)
+    autocomplete_cache = {}
+    for name in verificaation_names:
+            autocomplete_cache[name] = {}
+
+
+    autocomplete = AutoComplete(words=autocomplete_cache)
+    query = autocomplete.search(word=search_query)
+
+
+    return query
+
+
+@app.get("/verifier/get_verifier", tags=["Verify"])
+def get_data(filename : str):
+
+    with open(f"data/electioninfo/ballots/verifier_links/{filename}", 'r') as f:
+        text = json.load(f)
+
+    return text
 
 # Sample for test - https://github.com/microsoft/electionguard/blob/main/data/1.0.0-preview-1/sample/hamilton-general/election_private_data/plaintext_ballots/plaintext_ballot_5a150c74-a2cb-47f6-b575-165ba8a4ce53.json
 
