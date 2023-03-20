@@ -10,7 +10,12 @@ from electionguard.encrypt import EncryptionDevice, EncryptionMediator, generate
 from electionguard.ballot import PlaintextBallot, PlaintextBallotSelection, PlaintextBallotContest
 from electionguard.logs import log_info
 from electionguard.guardian import Guardian
+from electionguard_tools.helpers.export import export_record
 from typing import List
+
+from electionguard.constants import ElectionConstants, get_constants
+from electionguard.election_polynomial import LagrangeCoefficientsRecord
+
 
 import pickle
 import shutil
@@ -103,6 +108,10 @@ def keyCeremony():
 
     guardian_records = [guardian.publish() for guardian in guardians]
 
+
+    with open("data/electioninfo/guardian_records.p", "wb") as f:
+        f.write(pickle.dumps(guardian_records))
+
     # Publish the Joint Public Key
     joint_public_key = mediator.publish_joint_key()
 
@@ -113,6 +122,11 @@ def keyCeremony():
     # get an `InternalElectionDescription` and `CiphertextElectionContext`
     # that are used for the remainder of the election.
     internal_metadata, context = get_optional(builder.build())
+    election_constants = get_constants()
+
+    with open("data/electioninfo/election_constants.p", "wb") as f:
+        f.write(pickle.dumps(election_constants))
+
     print("---------------")
     print(guardian_records[0].election_public_key)
 
@@ -197,7 +211,9 @@ def tally(metadata_path, context_path):
 
     tally = CiphertextTally("tally_test", internal_metadata, context)
     encrypted_tally = load_pickle("data/electioninfo/ballots/store.p")
-    guardians : List[Guardian]= reestablishGuardians()
+    guardians : List[Guardian] = reestablishGuardians()
+
+    
     # Will also work like this but want more control rn -tally.batch_append(encrypted_tally, True)
     # Run through all encrypted ballots and verify they are valid for the given election
     for ballot in encrypted_tally.all():
@@ -207,19 +223,66 @@ def tally(metadata_path, context_path):
 
     mediator = DecryptionMediator("decrypt-med", context)
     submitted_ballots = list(get_ballots(encrypted_tally, BallotBoxState.CAST).values())
+    spoiled_ballots = list(get_ballots(encrypted_tally, BallotBoxState.SPOILED).values())
+
+    with open(f'data/electioninfo/submitted__enc_ballots.p', 'wb') as f:
+        f.write(pickle.dumps(submitted_ballots))
 
     for guardian in guardians:
         guardian_key = guardian.share_key()
         decryption_share = guardian.compute_tally_share(tally, context)
-        ballot_shares = guardian.compute_ballot_shares(submitted_ballots, context)
+        ballot_shares = guardian.compute_ballot_shares(spoiled_ballots, context)
         mediator.announce(guardian_key, decryption_share, ballot_shares)
 
-    plaintext_tally = mediator.get_plaintext_tally(tally, internal_metadata)
+    plaintext_tally = get_optional(mediator.get_plaintext_tally(tally, internal_metadata))
+    plaintext_spoiled_ballots = get_optional(mediator.get_plaintext_ballots(spoiled_ballots, internal_metadata))
+
+
+
+
+
+
+    lagrange_coefficients = LagrangeCoefficientsRecord(mediator.get_lagrange_coefficients())
+
+    
+    with open(f'data/electioninfo/coefficients.p', 'wb') as f:
+        f.write(pickle.dumps(lagrange_coefficients))
+
+    with open(f'data/electioninfo/ciphertext_tally.p', 'wb') as f:
+        f.write(pickle.dumps(tally))      
+
+    with open(f'data/electioninfo/plaintext_tally.p', 'wb') as f:
+        f.write(pickle.dumps(plaintext_tally))  
+
+    with open(f'data/electioninfo/plaintext_spoiled_ballots_.p', 'wb') as f:
+        f.write(pickle.dumps(plaintext_spoiled_ballots))  
+
+
+        
 
     return plaintext_tally
 
 
+def export_records(manifest_path, context_path, constants_path, enc_device_path,
+                           submitted_ballots_path, spoiled_ballots_path, ciphertext_tally_path,
+                            plaintext_tally_path, guaradian_record_path, coefficients_path,
+                            election_record):
+    manifest = from_file(Manifest, manifest_path)
+    context = load_pickle(context_path)
+    election_constants = load_pickle(constants_path)
+    encryption_device = load_pickle(enc_device_path)
+    submitted_ballots = load_pickle(submitted_ballots_path).all() #datastore
+    spoiled_ballots = load_pickle(spoiled_ballots_path).values()
+    ciphertext_tally = load_pickle(ciphertext_tally_path).publish()
+    plaintext_tally = load_pickle(plaintext_tally_path)
+    guardian_records = load_pickle(guaradian_record_path)
 
+
+    lagrange_coefficients = load_pickle(coefficients_path)
+
+    export_record(manifest, context, election_constants, [encryption_device],
+                  submitted_ballots, spoiled_ballots, ciphertext_tally,
+                  plaintext_tally, guardian_records, lagrange_coefficients, election_record)
 
 
 #keyCeremony()
@@ -228,6 +291,7 @@ def tally(metadata_path, context_path):
 
 #encrypt_ballot("data/electioninfo/metadata.p", "data/electioninfo/context.p", "data/electioninfo/ballots/plaintext_ballots/ballot01f4d0ac-caf9-44e2-95c9-81cb15858631_plaintext.p")
 if __name__ == '__main__':    
+    pass
     #print(load_pickle("data/electioninfo/ballots/plaintext_ballots/ballot1bdb09e2-38cf-4afd-b7a4-b77841b7bc1f_plaintext.p"))
-    tally("data/electioninfo/metadata.p", "data/electioninfo/context.p")
+    print(tally("data/electioninfo/metadata.p", "data/electioninfo/context.p"))
     #print(load_pickle("data/electioninfo/ballots/plaintext_ballots/ballot1bdb09e2-38cf-4afd-b7a4-b77841b7bc1f_plaintext.p"))

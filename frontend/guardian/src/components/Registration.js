@@ -138,6 +138,7 @@ const VoterRegistration = ({ url, setShow }) => {
                     {error !== "" && <p className="text-red-600 font-bold w-full">{error}</p>}
                     <input type='submit' value='Submit' className={("w-1/2 p-4 rounded-full cursor-pointer border-2 text-black dark:text-white border-black dark:border-white transition-all duration-500 betterhover:hover:scale-110 betterhover:hover:bg-green-300 dark:betterhover:hover:bg-slate-700")} />
                     <p className="text-xs" >* = required field</p>
+                    <button onClick={() => setShow("landing")}>Back to landing</button>
                 </form>
                 </div>
             </div> 

@@ -6,7 +6,6 @@ const debug = true // The toggle to skip a correct sign in on the login page. Us
 const defaultVals = {
     "VerificationCode": { "display": "Verification Code", "placeholder": "Verification Code", "value": "", "required": true, "error": "" },
 }
-
 const Verifier = ({ url, setShow }) => {
     const [fields, setFields] = useState(defaultVals) //Variable to hold the current form information.
     
@@ -76,7 +75,7 @@ const Verifier = ({ url, setShow }) => {
     //             return (error);
     //         });
 
-
+        setShow("Results")
     }
 
     const checkEmpty = (fName) => {
@@ -110,7 +109,9 @@ const Verifier = ({ url, setShow }) => {
                 {error !== "" && <p className="text-red-600 font-bold w-full">{error}</p>}
                 <input type='submit' value='Verify Results' className={("w-2/5 p-4 rounded-full cursor-pointer border-2 text-black m-4 dark:text-white border-black dark:border-white transition-all duration-500 betterhover:hover:scale-110 betterhover:hover:bg-green-300 dark:betterhover:hover:bg-slate-700")} />
                 <p className="text-xs" >* = required field</p>
+               
             </form>
+            
         </div>
         </div>
     </section>
