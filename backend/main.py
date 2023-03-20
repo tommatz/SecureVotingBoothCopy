@@ -22,7 +22,10 @@ import pickle
 
 from electionguard.ballot import PlaintextBallot, PlaintextBallotSelection, PlaintextBallotContest
 from electionguard_process import encrypt_ballot, export_records, keyCeremony, cast_or_spoil, tally
-
+from random_word import RandomWords
+from datetime import datetime
+from electionguard.data_store import DataStore
+from electionguard.serialize import to_file
 
 Base.metadata.create_all(bind=engine)
 
@@ -90,7 +93,17 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
             
             ballot_contests.append(PlaintextBallotContest(object_id=contest.type, ballot_selections=ballot_selections))
         
-        eg_ballot = PlaintextBallot(object_id=str(uuid.uuid4()), style_id="harrison-township-ballot-style", contests=ballot_contests)
+        rand_gen = RandomWords()
+        id = str(uuid.uuid4().hex)
+        verifier_id = ""
+
+        for i in range(0, len(id), 4):
+            verifier_id += f"{rand_gen.get_random_word()}  {id[i:i+4]} "
+
+        verifier_id = verifier_id[:-1] # remove space at end of word
+        log_info(f"Verifier id of {verifier_id} generated")
+
+        eg_ballot = PlaintextBallot(object_id=id, style_id="harrison-township-ballot-style", contests=ballot_contests)
 
 
         BALLOT_STORE = "data/electioninfo/ballots"
@@ -101,6 +114,12 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
 
 
         encrypted_ballot = encrypt_ballot("data/electioninfo/metadata.p", "data/electioninfo/context.p", f"{BALLOT_STORE}/plaintext_ballots/ballot{eg_ballot.object_id}_plaintext.p")
+        enc_time = datetime.fromtimestamp(ballot.timestamp)
+
+        formatted_time = enc_time.astimezone().strftime("%B %d, %Y %I:%M %p %Z")) # In format (Month, Day, Year, Hours:Minutes, AM/PM, timezone)
+
+        verifier_info = DataStore({"linked_vote" : id, "verify_code" : verifier_id, "vote_time" : str(formatted_time), "location" : "polling-place1"})
+        to_file(verifier_info, verifier_id, "data/electioninfo/ballots/verifier_links/")
 
         with open(f"{BALLOT_STORE}/encrypted_ballots/ballot{eg_ballot.object_id}_encrypt.p", 'wb') as f:
             f.write(pickle.dumps(encrypted_ballot))
