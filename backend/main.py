@@ -21,7 +21,7 @@ import copy
 import pickle
 
 from electionguard.ballot import PlaintextBallot, PlaintextBallotSelection, PlaintextBallotContest
-from electionguard_process import encrypt_ballot, keyCeremony, cast_or_spoil, tally
+from electionguard_process import encrypt_ballot, export_records, keyCeremony, cast_or_spoil, tally
 
 
 Base.metadata.create_all(bind=engine)
@@ -303,6 +303,14 @@ def tally_decrypt():
         for selection_key, selection in contest.selections.items():
            tally_dict[contest_key].append({selection_key : selection.tally})
     return tally_dict
+
+
+@app.post("/guardian/export_records", tags=["Verify"])
+def export_election_record():
+    plaintext_tally =  tally("data/electioninfo/metadata.p", "data/electioninfo/context.p")
+
+    export_election_record()
+    return {"Successfully exported election record"}
 
 
 # Sample for test - https://github.com/microsoft/electionguard/blob/main/data/1.0.0-preview-1/sample/hamilton-general/election_private_data/plaintext_ballots/plaintext_ballot_5a150c74-a2cb-47f6-b575-165ba8a4ce53.json
