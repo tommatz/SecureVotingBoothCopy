@@ -15,8 +15,6 @@ from typing import List
 
 from electionguard.constants import ElectionConstants, get_constants
 from electionguard.election_polynomial import LagrangeCoefficientsRecord
-
-
 import pickle
 
 def reestablishGuardians():
@@ -233,7 +231,7 @@ def export_records(manifest_path, context_path, constants_path, enc_device_path,
     context = load_pickle(context_path)
     election_constants = load_pickle(constants_path)
     encryption_device = load_pickle(enc_device_path)
-    submitted_ballots = load_pickle(submitted_ballots_path).all() #datastore
+    submitted_ballots = load_pickle(submitted_ballots_path).all() # datastore
     spoiled_ballots = load_pickle(spoiled_ballots_path).values()
     ciphertext_tally = load_pickle(ciphertext_tally_path).publish()
     plaintext_tally = load_pickle(plaintext_tally_path)
@@ -255,5 +253,24 @@ def export_records(manifest_path, context_path, constants_path, enc_device_path,
 if __name__ == '__main__':    
     pass
     #print(load_pickle("data/electioninfo/ballots/plaintext_ballots/ballot1bdb09e2-38cf-4afd-b7a4-b77841b7bc1f_plaintext.p"))
-    print(tally("data/electioninfo/metadata.p", "data/electioninfo/context.p"))
+    #print(tally("data/electioninfo/metadata.p", "data/electioninfo/context.p"))
+    from random_word import RandomWords
+    import uuid
+    r = RandomWords()
+
+
+
+    id = str(uuid.uuid4().hex)
+    verifier_id = ""
+
+    for i in range(0, len(id), 4):
+        verifier_id += f"{id[i:i+4]} {r.get_random_word()} "
+
+    verifier_id = verifier_id[:-1]
+    print(verifier_id.strip())
+        
+
+
+
+
     #print(load_pickle("data/electioninfo/ballots/plaintext_ballots/ballot1bdb09e2-38cf-4afd-b7a4-b77841b7bc1f_plaintext.p"))

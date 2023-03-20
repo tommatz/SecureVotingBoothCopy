@@ -75,7 +75,6 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
             found = result
 
     print(found.voted)
-    found.voted = 0
     if found.voted == False:
         if ballot.spoiled == False:
             found.voted = True #mark that the user has voted
