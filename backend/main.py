@@ -334,6 +334,33 @@ def export_election_record():
                    "data/electioninfo/coefficients.p", "data/election_record/")
     return {"Successfully exported election record"}
 
+from fast_autocomplete import AutoComplete
+import os
+
+@app.get("/verifier/suggestions", tags=["Verify"])
+def auto_corrections(search_query : str):
+    absolute_path = os.path.dirname(__file__)
+    full_path = os.path.join(absolute_path, "data/electioninfo/ballots/verifier_links")
+    verificaation_names = os.listdir(full_path)
+    autocomplete_cache = {}
+    for name in verificaation_names:
+            autocomplete_cache[name] = {}
+
+
+    autocomplete = AutoComplete(words=autocomplete_cache)
+    query = autocomplete.search(word=search_query)
+
+
+    return query
+
+
+@app.get("/verifier/get_verifier", tags=["Verify"])
+def get_data(filename : str):
+
+    with open(f"data/electioninfo/ballots/verifier_links/{filename}", 'r') as f:
+        text = json.load(f)
+
+    return text
 
 # Sample for test - https://github.com/microsoft/electionguard/blob/main/data/1.0.0-preview-1/sample/hamilton-general/election_private_data/plaintext_ballots/plaintext_ballot_5a150c74-a2cb-47f6-b575-165ba8a4ce53.json
 
