@@ -32,6 +32,14 @@ The backend and the frontend should be run seperately.
  
 ## Change Log
 
+**SPRINT 6** - *3/20/2023*
+
+- Added voter success page
+- Added election record publishing
+- Completed verifier related tasks
+- Started on ID card scanning
+- Added true hardware key distribution 
+
 **SPRINT 5** - *2/26/2023*
 
 - Added ballot encryption with ElectionGuard

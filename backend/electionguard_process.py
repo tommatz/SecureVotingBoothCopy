@@ -16,15 +16,49 @@ from typing import List
 from electionguard.constants import ElectionConstants, get_constants
 from electionguard.election_polynomial import LagrangeCoefficientsRecord
 import pickle
+import shutil
 
-def reestablishGuardians():
-    directory = 'data/keys'
-    guardian_list = []
+def sanitizeKey(path):
+    for filename in os.listdir(path):
+        f = os.path.join(path, filename)
+        if (filename[0:3].upper() != "KEY") and (filename != "System Volume Information" and filename != "Recovery") and (filename[0:1] != "."): 
+            if os.path.isdir(f):
+               shutil.rmtree(f)
+            else:
+                os.remove(f)
+
+
+def sanitizeHardwareKeys():
+    directory = '/Volumes' #works on mac
     for filename in os.listdir(directory):
         f = os.path.join(directory, filename)
-        if os.path.isfile(f):
+        if os.path.isdir(f) and filename[0:8].upper() == "GUARDIAN":
+            sanitizeKey(f)
+
+
+
+def reestablishGuardians():
+    sanitizeHardwareKeys()
+    directory = 'data/keys'
+    guardian_list = []
+    found = True
+    it = 0
+
+    while found == True: #scans until a guardian isnt found
+        it += 1
+        usb_path = "/Volumes/Guardian" + str(it)
+        if os.path.isdir(usb_path):
+            f = os.path.join(usb_path, "Key"+str(it)+".p")
             guardian = pickle.load(open(f, 'rb'))
             guardian_list.append(guardian)
+
+        else:
+            f = os.path.join(directory, "Key"+str(it)+".p")
+            if os.path.isfile(f):
+                guardian = pickle.load(open(f, 'rb'))
+                guardian_list.append(guardian)
+            else:
+                found = False
 
     return guardian_list
 
@@ -32,7 +66,11 @@ def reestablishGuardians():
 
 def distributeKeys(guardians):
     for i in range(len(guardians)):
-        pickle.dump(guardians[i], open( "data/keys/Key"+str(i+1)+".p", "wb" ))
+        usb_path = "/Volumes/Guardian" + str(i+1)
+        if os.path.isdir(usb_path):
+            pickle.dump(guardians[i], open( "/Volumes/Guardian" + str(i+1) + "/Key"+str(i+1)+".p", "wb" )) #populate new keys
+        else:
+            pickle.dump(guardians[i], open( "data/keys/Key"+str(i+1)+".p", "wb" )) #if usb fails, save to local area
 
 
 def keyCeremony():
