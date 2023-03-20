@@ -14,6 +14,8 @@ from typing import List
 
 import pickle
 import shutil
+import win32api
+from sys import platform
 
 def sanitizeKey(path):
     for filename in os.listdir(path):
@@ -25,12 +27,33 @@ def sanitizeKey(path):
                 os.remove(f)
 
 
+def nthGuardian(i):
+    root = 'A'
+    while root != 'Z':
+        p = root + ":\\"
+        if os.path.isdir(p):
+            tup = win32api.GetVolumeInformation(p)
+            if tup[0] == "GUARDIAN" + str(i) + "":
+                return p
+        
+        root = chr(ord(root) + 1) #increment storage device
+
+    return False
+
+
 def sanitizeHardwareKeys():
-    directory = '/Volumes' #works on mac
-    for filename in os.listdir(directory):
-        f = os.path.join(directory, filename)
-        if os.path.isdir(f) and filename[0:8].upper() == "GUARDIAN":
-            sanitizeKey(f)
+    if platform == "darwin":
+        directory = '/Volumes' #works on mac
+        for filename in os.listdir(directory):
+            f = os.path.join(directory, filename)
+            if os.path.isdir(f) and filename[0:8].upper() == "GUARDIAN":
+                sanitizeKey(f)
+
+    elif platform == "win32":
+        for i in range(0,26):
+            stick = nthGuardian(i)
+            if stick != False:
+                sanitizeKey(stick)
 
 
 
@@ -41,33 +64,65 @@ def reestablishGuardians():
     found = True
     it = 0
 
-    while found == True: #scans until a guardian isnt found
-        it += 1
-        usb_path = "/Volumes/Guardian" + str(it)
-        if os.path.isdir(usb_path):
-            f = os.path.join(usb_path, "Key"+str(it)+".p")
-            guardian = pickle.load(open(f, 'rb'))
-            guardian_list.append(guardian)
-
-        else:
-            f = os.path.join(directory, "Key"+str(it)+".p")
-            if os.path.isfile(f):
+    if platform == "darwin":
+        while found == True: #scans until a guardian isnt found
+            it += 1
+            usb_path = "/Volumes/Guardian" + str(it)
+            if os.path.isdir(usb_path):
+                f = os.path.join(usb_path, "Key"+str(it)+".p")
                 guardian = pickle.load(open(f, 'rb'))
                 guardian_list.append(guardian)
+
             else:
-                found = False
+                f = os.path.join(directory, "Key"+str(it)+".p")
+                if os.path.isfile(f):
+                    guardian = pickle.load(open(f, 'rb'))
+                    guardian_list.append(guardian)
+                else:
+                    found = False
+
+    elif platform == "win32":
+
+        while found == True: #scans until a guardian isnt found
+            it += 1
+            stick = nthGuardian(it)
+            if stick != False:
+                for filename in os.listdir(stick):
+                    if filename[0:3].upper() == "KEY":
+                        f = os.path.join(stick, filename)
+                        guardian = pickle.load(open(f, 'rb'))
+                        guardian_list.append(guardian)
+
+            else:
+                f = os.path.join(directory, "Key"+str(it)+".p")
+                if os.path.isfile(f):
+                    guardian = pickle.load(open(f, 'rb'))
+                    guardian_list.append(guardian)
+                else:
+                    found = False
 
     return guardian_list
 
 
-
 def distributeKeys(guardians):
-    for i in range(len(guardians)):
-        usb_path = "/Volumes/Guardian" + str(i+1)
-        if os.path.isdir(usb_path):
-            pickle.dump(guardians[i], open( "/Volumes/Guardian" + str(i+1) + "/Key"+str(i+1)+".p", "wb" )) #populate new keys
-        else:
-            pickle.dump(guardians[i], open( "data/keys/Key"+str(i+1)+".p", "wb" )) #if usb fails, save to local area
+    if platform == "darwin":
+
+        for i in range(len(guardians)):
+            usb_path = "/Volumes/Guardian" + str(i+1)
+            if os.path.isdir(usb_path):
+                pickle.dump(guardians[i], open( "/Volumes/Guardian" + str(i+1) + "/Key"+str(i+1)+".p", "wb" )) #populate new keys
+            else:
+                pickle.dump(guardians[i], open( "data/keys/Key"+str(i+1)+".p", "wb" )) #if usb fails, save to local area
+
+    elif platform == "win32":
+
+        for i in range(len(guardians)):
+            stick = nthGuardian(i+1)
+            if stick != False:
+                pickle.dump(guardians[i], open(stick + "/Key"+str(i+1)+".p", "wb" )) #populate new keys
+            else:
+                pickle.dump(guardians[i], open( "data/keys/Key"+str(i+1)+".p", "wb" )) #if usb fails, save to local area
+
 
 
 def keyCeremony():
