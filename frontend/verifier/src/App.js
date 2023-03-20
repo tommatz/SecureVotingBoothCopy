@@ -1,11 +1,14 @@
 //import Template from "./components/Template";
 import Verifier from "./components/verifier";
 import useServer from "./components/useServer";
+import Results from "./components/Results";
 import { useEffect, useState } from "react";
 
 const url = "http://localhost:8006";
 
 function App() {
+
+  const defaultBallot = {"contest": "govener", "selection" : "Bob Ross"}
 
   const [server, setServer] = useServer(url);
   useEffect(() => {
@@ -14,7 +17,7 @@ function App() {
   }, [server, setServer])
 
   const [show, setShow] = useState("landing");
-
+  const [ballots,setBallots] = useState(defaultBallot)
   if (!server || server === false || server === "Error" || server === "Retry") {//Loading page while frontend is fetching server data
     return (
       <header id='App' className='h-screen w-screen flex flex-col'>
@@ -29,7 +32,7 @@ function App() {
   return (
     <header id="App" className="h-screen w-screen">
       {show === "verifier" 
-      ? <Verifier setShow={setShow} url={url} /> : <Verifier setShow={setShow} url={url} /> }
+      ? <Verifier setShow={setShow} url={url} /> : <Results setShow={setShow} url={url} ballots={ballots} setBallots={setBallots} /> }
     </header>
   );
 }
