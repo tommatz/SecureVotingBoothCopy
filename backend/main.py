@@ -114,11 +114,11 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
 
 
         encrypted_ballot = encrypt_ballot("data/electioninfo/metadata.p", "data/electioninfo/context.p", f"{BALLOT_STORE}/plaintext_ballots/ballot{eg_ballot.object_id}_plaintext.p")
-        enc_time = datetime.fromtimestamp(ballot.timestamp)
+        enc_time = datetime.fromtimestamp(encrypted_ballot.timestamp)
 
-        formatted_time = enc_time.astimezone().strftime("%B %d, %Y %I:%M %p %Z")) # In format (Month, Day, Year, Hours:Minutes, AM/PM, timezone)
+        formatted_time = enc_time.astimezone().strftime("%B %d, %Y %I:%M %p %Z") # In format (Month, Day, Year, Hours:Minutes, AM/PM, timezone)
 
-        verifier_info = DataStore({"linked_vote" : id, "verify_code" : verifier_id, "vote_time" : str(formatted_time), "location" : "polling-place1"})
+        verifier_info = {"linked_vote" : id, "verify_code" : verifier_id, "vote_time" : str(formatted_time), "location" : "polling-place1"}
         to_file(verifier_info, verifier_id, "data/electioninfo/ballots/verifier_links/")
 
         with open(f"{BALLOT_STORE}/encrypted_ballots/ballot{eg_ballot.object_id}_encrypt.p", 'wb') as f:

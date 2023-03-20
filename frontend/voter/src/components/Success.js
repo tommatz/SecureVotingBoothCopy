@@ -1,4 +1,4 @@
-const Success = ({ login, setLogin, verifierID, setVerifierID }) => {
+const Success = ({ login, setLogin, verifierID, setVerifierID, setShow }) => {
 
     const onSubmit = (e) => {
         //prevents close of form
@@ -20,7 +20,7 @@ const Success = ({ login, setLogin, verifierID, setVerifierID }) => {
                         <text>{verifierID}</text>
                     </div>
                     {/* {error !== "" && <p className="text-red-600 font-bold w-full">{error}</p>} */}
-                    <input type='Exit' value='Complete' className={("w-1/2 p-4 rounded-full cursor-pointer border-2 text-black dark:text-white border-black dark:border-white transition-all duration-500 betterhover:hover:scale-110 betterhover:hover:bg-green-300 dark:betterhover:hover:bg-slate-700")} />
+                    <button onClick={() => setShow("login")} className={("w-1/2 p-4 rounded-full cursor-pointer border-2 text-black dark:text-white border-black dark:border-white transition-all duration-500 betterhover:hover:scale-110 betterhover:hover:bg-green-300 dark:betterhover:hover:bg-slate-700")}>Complete</button>
                     
                 </form>
             </div>
