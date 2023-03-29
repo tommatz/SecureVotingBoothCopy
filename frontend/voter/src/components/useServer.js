@@ -30,13 +30,8 @@ const useServer = (url) => {
             for(let i = 0; i < setup["contests"].length; i++)
                 if(setup["contests"][i]["type"] !== null && setup["contests"][i]["ballot_selections"] !== null)
                     contests = {...contests, [setup["contests"][i]["type"]] : setup["contests"][i]["ballot_selections"]};
-
-            let final = { //variable used to set the server variable
-                "contests" : contests
-            };
-
-            //console.log(final);
-            setServer(final);
+                
+            setServer({"contests" : contests});
         }
 
         if(!loaded.current)

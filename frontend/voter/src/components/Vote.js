@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-const Vote = ({ contests, url, login, setLogin,verifierID, setVerifierID }) => {
+const Vote = ({ contests, url, login, setVerifierID }) => {
 
     const cNames = Object.keys(contests) //Returns array of the contests object children names Example: ["Primary", "Secondary"]
 
@@ -12,10 +12,18 @@ const Vote = ({ contests, url, login, setLogin,verifierID, setVerifierID }) => {
         return defaultBallot
     }
 
+    const reformatText = (text) => {
+        if(text === null)
+            return null
+
+        text = text.replaceAll('-', ' '); //Removes dashes
+        text = text.replace(/\w+/g, (w) => {return w[0].toUpperCase() + w.slice(1).toLowerCase()}) //Pascal Case
+
+        return text    
+    }
+
     const [selected, setSelected] = useState(getDefaultBallot) //Holds the currently selected candidate data
     const [currentContest, setCurrentContest] = useState(cNames[0])
-    // moved to app.js
-    //const [verifierID, setVerifierID] = useState("")
 
     //makeSelection is the function that controls the currently selected candidate data.
     //It requires the contest and candidate as parameters, and then sets the selected variable with this new information.
@@ -60,11 +68,10 @@ const Vote = ({ contests, url, login, setLogin,verifierID, setVerifierID }) => {
                     return Promise.reject(error);
                 }
                 
-                //this verifier ID code will need to be moved to wherever the logic behind the success page is when that is completed
                 try {
                     const response = await fetch(url + "/verifier/get_verifier_id");
                     const result = await response.json();
-                    console.log(result);
+                    //console.log(result);
                     setVerifierID(result)
                 } catch(error) {
                     console.error(error);
@@ -83,7 +90,7 @@ const Vote = ({ contests, url, login, setLogin,verifierID, setVerifierID }) => {
             <section id="vote" className="h-[90%] w-full grid overflow-y-auto"> {/* The 90% vertical height of the vote section is to fill the center of the screen (top bar takes 5% and bottom bar takes 5%) */}
                 {cNames.map((contest) => (
                     <div key={contest} className={`flex flex-col m-auto items-center bg-neutral-300 dark:bg-slate-700 rounded-xl transition-colors duration-500 ${currentContest !== contest && "hidden"}`}>
-                        <h1 className="text-2xl sm:text-4xl p-4 font-bold text-black dark:text-white transition-colors duration-500">{contest} Contest</h1>
+                        <h1 className="text-2xl sm:text-4xl p-4 font-bold text-black dark:text-white transition-colors duration-500">{reformatText(contest)} Contest</h1>
                         <div className="grid p-4">
                             {contests[contest].map((candidate) => (
                                 <div onClick={() => makeSelection(contest, candidate["id"] - 1)} key={contest + " " + candidate["id"]} className="flex flex-row items-center p-4 -mt-1 border-4 border-black dark:border-white transition-colors duration-500">
@@ -91,8 +98,8 @@ const Vote = ({ contests, url, login, setLogin,verifierID, setVerifierID }) => {
                                         <span className={`p-2 text-lg sm:text-xl md:text-2xl font-bold dark:text-white transition-all duration-500 ${selected[contest] === candidate["id"] -1 ? 'opacity-1' : 'opacity-0'}`}>&#10004;</span>
                                     </div>
                                     <div className="w-full flex flex-col px-4 items-center text-black dark:text-white transition-colors duration-500">
-                                        <p className="text-lg sm:text-xl md:text-2xl font-bold">{candidate["name"]}</p>
-                                        <p className="text-base sm:text-lg md:text-xl">{candidate["party"]} Party</p>
+                                        <p className="text-lg sm:text-xl md:text-2xl font-bold">{reformatText(candidate["name"])}</p>
+                                        <p className={"text-base sm:text-lg md:text-xl " + (candidate["party"] === null ? "hidden" : "")}>{reformatText(candidate["party"])} Party</p>
                                     </div>
                                 </div>
                             ))}
@@ -104,7 +111,7 @@ const Vote = ({ contests, url, login, setLogin,verifierID, setVerifierID }) => {
                     
                     <div id="confirmation-selection" className="flex flex-col space-y-4 border-y-4 p-4 text-lg sm:text-xl md:text-2xl dark:text-white border-black dark:border-white transition-colors duration-500">
                         {cNames.map((contest) => (
-                            <p key={contest}>{contest + ": " + (selected[contest] === -1 ? "No Vote" : contests[contest][selected[contest]]["name"])}</p>
+                            <p key={contest}>{reformatText(contest) + ": " + (selected[contest] === -1 ? "No Vote" : contests[contest][selected[contest]]["name"])}</p>
                         ))}
                     </div>
                     
