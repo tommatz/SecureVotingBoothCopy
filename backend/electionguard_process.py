@@ -17,8 +17,9 @@ from electionguard.constants import ElectionConstants, get_constants
 from electionguard.election_polynomial import LagrangeCoefficientsRecord
 import pickle
 import shutil
-import win32api
 from sys import platform
+if platform == "win32":
+    import win32api
 
 def sanitizeKey(path):
     for filename in os.listdir(path):

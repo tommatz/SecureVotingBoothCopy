@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 const debug = true // The toggle to skip a correct sign in on the login page. Use "test" in the first name field to skip login while debug is set to true.
 
@@ -17,6 +17,33 @@ const Login = ({ url, setLogin }) => {
 
     const [fields, setFields] = useState(defaultLogin) //Variable to hold the current form information.
     const [error, setError] = useState("") //Variable used to set the error message above the submit button.
+
+    const videoRef = useRef(null)
+    const [camera, setCamera] = useState(false)
+
+    useEffect(() => {
+        const getVideo = () => {
+            window.navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: "user", //Front camera on mobile
+                    width: { ideal: 4096 }, //Camera feed will be at 4K if their camera supports that resolution, or lowered to their max resolution if not
+                    height: { ideal: 2160 } 
+                  },
+                  audio: false
+            })
+            .then(stream => {
+                let video = videoRef.current
+                video.srcObject = stream
+                video.play()
+            })
+            .catch(err => {
+                console.error(err)
+            })
+        }
+
+        if(camera)
+            getVideo()
+    }, [videoRef, camera])
 
     //The handleChange function is called on every keystroke, it updates the respective field within the fields variable
     const handleChange = (e) => {
@@ -106,10 +133,26 @@ const Login = ({ url, setLogin }) => {
         return false
     }
 
+    if(camera)
+        return (
+            <section id="camera" className="h-[95%] w-full bg-gray-300 dark:bg-slate-600 transition-colors duration-500">
+                <section id="video" className="h-full w-full ">
+                    <video ref={videoRef} className="h-full w-full"/>
+                    <button onClick={() => setCamera(false)} className="absolute bottom-8 left-8 text-xl font-bold rounded-full p-4 bg-red-300 border-2 border-black betterhover:hover:bg-red-400 transition-colors duration-500">Go Back</button>
+                    <button onClick={() => console.log("take a photo")} className="absolute bottom-8 right-8 text-xl font-bold rounded-full p-4 bg-green-300 border-2 border-black betterhover:hover:bg-green-400 transition-colors duration-500">Take Photo</button>
+                </section>
+            </section>
+        )
+    
     return (
         <section id="login" className="flex h-[95%] w-full"> {/* The 95% vertical height of the template section is to fill the rest of the screen (top bar takes 5%) */}
-            <div className="w-2/3 m-auto space-y-4 p-4 bg-gray-300 dark:bg-slate-600 shadow-xl rounded-xl text-lg md:text-xl text-black dark:text-white transition-colors duration-500"> {/* This div is needed to center the items inside it using m-auto (margins auto) */}
+            <div className="w-3/4 m-auto space-y-4 p-4 bg-gray-300 dark:bg-slate-600 shadow-xl rounded-xl text-lg md:text-xl text-black dark:text-white transition-colors duration-500"> {/* This div is needed to center the items inside it using m-auto (margins auto) */}
                 <h1 className="text-2xl md:text-4xl text-center font-bold">Voter Login</h1>
+
+                <div className="w-full text-center">
+                    <button onClick={() => setCamera(true)} className="px-8 py-4 rounded-full cursor-pointer font-bold border-2 border-black dark:border-white bg-gray-300 dark:bg-slate-600  text-black dark:text-white betterhover:hover:bg-gray-400 dark:betterhover:hover:bg-slate-700 transition-colors duration-500">Sign in with your ID</button>
+                </div>
+
                 <form className="space-y-4 text-center" onSubmit={onSubmit}>
                     <div className='grid md:grid-cols-2 gap-4 text-left'>
                         {Object.keys(fields).map((field) => (
@@ -128,6 +171,7 @@ const Login = ({ url, setLogin }) => {
                     <input type='submit' value='Submit' className={("w-1/2 p-4 rounded-full cursor-pointer border-2 text-black dark:text-white border-black dark:border-white transition-all duration-500 betterhover:hover:scale-110 betterhover:hover:bg-green-300 dark:betterhover:hover:bg-slate-700")} />
                     <p className="text-xs" >* = required field</p>
                 </form>
+
             </div>
         </section>
     )

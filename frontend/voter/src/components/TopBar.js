@@ -22,7 +22,7 @@ const TopBar = ({darkMode, setDarkMode, login, setLogin}) => {
         </button>
       </section>
 
-      <section id="menu" className={`absolute top-[5%] transition-all duration-300 ${!menu ? "-right-1/4" : "right-0"}`} >
+      <section id="menu" className={`z-10 absolute top-[5%] transition-all duration-300 ${!menu ? "-right-1/4" : "right-0"}`} >
         <div className={`flex flex-col border-b-4 border-l-4 border-black dark:border-white bg-green-600 dark:bg-slate-700 transition-colors duration-500 ${!menu && "hidden"}`}>
           <button onClick={() => setLogin({...login, "active" : false}, setMenu(false))} className={`w-full flex items-center justify-end space-x-4 p-4 betterhover:hover:scale-110 transition-transform duration-300 ${!login["active"] && "hidden"}`}>
             <p className="text-black dark:text-white transition-colors duration-500 text-sm sm:text-base md:text-xl">Logout</p>
