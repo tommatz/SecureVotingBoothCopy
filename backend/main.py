@@ -101,6 +101,7 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
             verifier_id += f"{rand_gen.get_random_word()}  {id[i:i+4]} "
 
         verifier_id = verifier_id[:-1] # remove space at end of word
+        found.verifier_id = verifier_id
         log_info(f"Verifier id of {verifier_id} generated")
 
         eg_ballot = PlaintextBallot(object_id=id, style_id="harrison-township-ballot-style", contests=ballot_contests)
@@ -138,11 +139,6 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
         return {"info" : "Ballot Succesfully Recieved"}
 
     return {"info" : "Failed. Attempt at double voting"}
-    
-
-
-
-
 
 
 
@@ -294,10 +290,16 @@ def get_ceremony_info(name : str, database : Session = Depends(get_db)):
     return ceremony_info
 
 
-@app.get("/verifier/get_verifier_id", tags=["Verification"])
-def get_verifier_id():
-    id = uuid.uuid4()
-    return id
+@app.post("/verifier/get_verifier_id", tags=["Verification"])
+def get_verifier_id(login_info : LoginInfo, database: Session = Depends(get_db)):
+    print(str(login_info.username))
+    user : User = database.query(User).filter(User.fullname == str(login_info.username)).filter(User.address == str(login_info.address)).one()
+
+    if user:
+        return user.verifier_id
+    
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contest not found")
+
 
 
 @app.post("/guardian/set_key_ceremony", tags=["Contest Setup"])
