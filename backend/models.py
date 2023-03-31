@@ -37,7 +37,7 @@ class User(Base):
     postal_code = Column(String, index=True)
     street_address = Column(String, index=True)
     voted = Column(Boolean, default=False, index=True)
-    verifier_id = Column(String)
+    verifier_id = Column(String, index=True)
 
     @hybrid_property
     def fullname(self):
@@ -51,4 +51,4 @@ class ElectionInfo(Base):
     __tablename__ = "election_info"
     name = Column(String, primary_key=True, index=True)
     guardians = Column(Integer, index=True)
-    quorum = Column(Integer, index=True)
+    quorum = Column(Integer, index=True)    

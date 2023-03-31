@@ -54,28 +54,7 @@ def get_db():
 @app.post("/voter/send_vote", tags=["Voting"])
 def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session = Depends(get_db)):
 
-
-    username = login_info.username
-    address = login_info.address
-    login_user = User( #need to create this for the hybrid properties
-        first = username.first,
-        middle = username.middle,
-        last = username.last,
-        suffix = username.suffix,
-        country_code = address.country_code,
-        country_area = address.country_area,
-        city = address.city,
-        postal_code = address.postal_code,
-        street_address = address.street_address
-    )
-
-
-    results : List[User] = database.query(User).filter(User.first == username.first).filter(User.last == username.last).all()
-    found = results[0]
-
-    for result in results:
-        if login_user.fullname == result.fullname and login_user.address == result.address:
-            found = result
+    found = database.query(User).filter(User.fullname == str(login_info.username)).filter(User.address == str(login_info.address)).first()
 
     print(found.voted)
     if found.voted == False:
@@ -98,7 +77,7 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
         verifier_id = ""
 
         for i in range(0, len(id), 4):
-            verifier_id += f"{rand_gen.get_random_word()}  {id[i:i+4]} "
+            verifier_id += f"{rand_gen.get_random_word()} {id[i:i+4]} "
 
         verifier_id = verifier_id[:-1] # remove space at end of word
         found.verifier_id = verifier_id
@@ -223,28 +202,9 @@ def get_tally(contest : str, candidate : Optional[str] = None, database : Sessio
 
 @app.post("/voter/login", response_model=LoginInfo, tags=["Authentication"])
 def receive_login(login_info : LoginInfo, database: Session = Depends(get_db)):
-
-    username = login_info.username
-    address = login_info.address
-
-    login_user = User(
-        first = username.first,
-        middle = username.middle,
-        last = username.last,
-        suffix = username.suffix,
-
-        country_code = address.country_code,
-        country_area = address.country_area,
-        city = address.city,
-        postal_code = address.postal_code,
-        street_address = address.street_address
-    )
-
-    results : List[User] = database.query(User).filter(User.first == username.first).filter(User.last == username.last).all()
-
-    for result in results:
-        if login_user.fullname == result.fullname and login_user.address == result.address:
-            return login_info
+    user = database.query(User).filter(User.fullname == str(login_info.username)).filter(User.address == str(login_info.address)).first()
+    if user:
+        return login_info
         
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User is not registered to vote.")
 
@@ -267,11 +227,11 @@ def register(login_info : LoginInfo, database: Session = Depends(get_db)):
         street_address = address.street_address
     )
 
-    results : List[User] = database.query(User).filter(User.first == username.first).filter(User.last == username.last).all()
+    user = database.query(User).filter(User.fullname == str(login_info.username)).filter(User.address == str(login_info.address)).first()
 
-    for result in results:
-        if new_user.fullname == result.fullname and new_user.address == result.address:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User Already Exists. Did you mean to login?")
+
+    if user:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="User Already Exists. Did you mean to login?")
             
     database.add(new_user)
     database.commit()
@@ -293,14 +253,12 @@ def get_ceremony_info(name : str, database : Session = Depends(get_db)):
 @app.post("/verifier/get_verifier_id", tags=["Verification"])
 def get_verifier_id(login_info : LoginInfo, database: Session = Depends(get_db)):
     print(str(login_info.username))
-    user : User = database.query(User).filter(User.fullname == str(login_info.username)).filter(User.address == str(login_info.address)).one()
+    user : User = database.query(User).filter(User.fullname == str(login_info.username)).filter(User.address == str(login_info.address)).first()
 
     if user:
         return user.verifier_id
     
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contest not found")
-
-
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Verifier code not found")
 
 @app.post("/guardian/set_key_ceremony", tags=["Contest Setup"])
 def set_key_ceremony(key_ceremony_info : KeyCeremonyInfo, database: Session = Depends(get_db)):
@@ -317,7 +275,6 @@ def tally_decrypt():
 
     tally_dict = {}
 
-
     for contest_key, contest in plaintext_tally.contests.items():
         tally_dict[contest_key] = []
         for selection_key, selection in contest.selections.items():
@@ -328,12 +285,13 @@ def tally_decrypt():
 @app.post("/guardian/export_records", tags=["Verify"])
 def export_election_record():
     plaintext_tally =  tally("data/electioninfo/metadata.p", "data/electioninfo/context.p")
+    election_path = "data/electioninfo"
 
-    export_records("data/manifest.json", "data/electioninfo/context.p", "data/electioninfo/election_constants.p",
-                   "data/electioninfo/encryption/encrpytion_device.p", "data/electioninfo/ballots/store.p",
-                   "data/electioninfo/plaintext_spoiled_ballots_.p", "data/electioninfo/ciphertext_tally.p",
-                   "data/electioninfo/plaintext_tally.p", "data/electioninfo/guardian_records.p",
-                   "data/electioninfo/coefficients.p", "data/election_record/")
+    export_records("data/manifest.json", f"{election_path}/context.p", f"{election_path}/election_constants.p",
+                   f"{election_path}/encryption/encrpytion_device.p", f"{election_path}/ballots/store.p",
+                   f"{election_path}/plaintext_spoiled_ballots_.p", f"{election_path}/ciphertext_tally.p",
+                   f"{election_path}/plaintext_tally.p", f"{election_path}/guardian_records.p",
+                   f"{election_path}/coefficients.p", "data/election_record/")
     return {"Successfully exported election record"}
 
 from fast_autocomplete import AutoComplete
@@ -355,14 +313,17 @@ def auto_corrections(search_query : str):
 
     return query
 
-
-@app.get("/verifier/get_verifier", tags=["Verify"])
+import os.path as path
+@app.get("/verifier/get_verifier", response_model=VerifierInfo, response_model_exclude={"linked_vote"}, tags=["Verify"])
 def get_data(filename : str):
 
-    with open(f"data/electioninfo/ballots/verifier_links/{filename}", 'r') as f:
-        text = json.load(f)
+    verification_path = f"data/electioninfo/ballots/verifier_links/{filename}.json"
 
-    return text
+    if(path.isfile(verification_path)):  
+        with open(f"data/electioninfo/ballots/verifier_links/{filename}.json", 'r') as f:
+            return json.load(f)
+
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Verifier code not found")
 
 # Sample for test - https://github.com/microsoft/electionguard/blob/main/data/1.0.0-preview-1/sample/hamilton-general/election_private_data/plaintext_ballots/plaintext_ballot_5a150c74-a2cb-47f6-b575-165ba8a4ce53.json
 

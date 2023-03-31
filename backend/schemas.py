@@ -130,3 +130,8 @@ class KeyCeremonyInfo(BaseModel):
         
         return quorum
 
+class VerifierInfo(BaseModel):
+    linked_vote : str
+    verify_code : str
+    vote_time : str
+    location : str
