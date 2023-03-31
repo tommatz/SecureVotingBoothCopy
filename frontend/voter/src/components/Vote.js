@@ -69,7 +69,13 @@ const Vote = ({ contests, url, login, setVerifierID }) => {
                 }
                 
                 try {
-                    const response = await fetch(url + "/verifier/get_verifier_id");
+                    const verifierOptions = {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({"username": login["username"], "address": login["address"]})
+                    };
+
+                    const response = await fetch(url + "/verifier/get_verifier_id", verifierOptions);
                     const result = await response.json();
                     //console.log(result);
                     setVerifierID(result)

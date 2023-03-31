@@ -66,11 +66,19 @@ class Address(BaseModel):
     postal_code : str
     street_address : str
 
+    def __str__(self):
+        return self.country_code + self.country_area + self.city + self.postal_code + self.street_address
+
+
+
 class UserName(BaseModel):
     first : str
     middle : str
     last : str
     suffix : Optional[str] = ""
+
+    def __str__(self):
+        return self.first + self.middle + self.last + self.suffix
     
  
 class LoginInfo(BaseModel):
@@ -122,3 +130,8 @@ class KeyCeremonyInfo(BaseModel):
         
         return quorum
 
+class VerifierInfo(BaseModel):
+    linked_vote : str
+    verify_code : str
+    vote_time : str
+    location : str
