@@ -135,3 +135,4 @@ class VerifierInfo(BaseModel):
     verify_code : str
     vote_time : str
     location : str
+    spoiled : str = False
