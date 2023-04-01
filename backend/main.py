@@ -27,6 +27,8 @@ from datetime import datetime
 from electionguard.data_store import DataStore
 from electionguard.serialize import to_file
 
+from barcode_decoder import decode
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Just Bobcats")
@@ -324,6 +326,15 @@ def get_data(filename : str):
             return json.load(f)
 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Verifier code not found")
+
+
+@app.post("/voter/scan_id", tags=["Authentication"])
+def scan_id(id_card : UploadFile = File(...), database : Session = Depends(get_db)):
+    file_path = f"data/barcodes/{id_card.filename}"
+    with open(file_path, "wb") as wf:
+        wf.write(id_card.file.read())
+        log_info(f"wrote id_card file into f{file_path}")  
+    return decode(file_path)[1]
 
 # Sample for test - https://github.com/microsoft/electionguard/blob/main/data/1.0.0-preview-1/sample/hamilton-general/election_private_data/plaintext_ballots/plaintext_ballot_5a150c74-a2cb-47f6-b575-165ba8a4ce53.json
 
