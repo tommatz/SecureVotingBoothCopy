@@ -19,7 +19,9 @@ const Login = ({ url, setLogin }) => {
     const [error, setError] = useState("") //Variable used to set the error message above the submit button.
 
     const videoRef = useRef(null)
+    const photoRef = useRef(null)
     const [camera, setCamera] = useState(false)
+    const [picture, setPicture] = useState(false)
 
     useEffect(() => {
         const getVideo = () => {
@@ -44,6 +46,26 @@ const Login = ({ url, setLogin }) => {
         if(camera)
             getVideo()
     }, [videoRef, camera])
+
+    const takePhoto = () => {
+        if(videoRef.current == null)
+            return
+
+        setPicture(true)
+
+        let video = videoRef.current
+        const height = video.videoHeight
+        const width = video.videoWidth
+
+        let canvas = document.createElement('canvas')
+        canvas.height = height
+        canvas.width = width
+        let context = canvas.getContext('2d')
+        context.drawImage(video, 0, 0, width, height)
+
+        let image = canvas.toDataURL('image/jpeg');
+        photoRef.current.src = image
+    }
 
     //The handleChange function is called on every keystroke, it updates the respective field within the fields variable
     const handleChange = (e) => {
@@ -136,10 +158,15 @@ const Login = ({ url, setLogin }) => {
     if(camera)
         return (
             <section id="camera" className="h-[95%] w-full bg-gray-300 dark:bg-slate-600 transition-colors duration-500">
-                <section id="video" className="h-full w-full ">
+                <section id="video" className={"h-full w-full " + (picture ? "hidden" : "")}>
                     <video ref={videoRef} className="h-full w-full"/>
                     <button onClick={() => setCamera(false)} className="absolute bottom-8 left-8 text-xl font-bold rounded-full p-4 bg-red-300 border-2 border-black betterhover:hover:bg-red-400 transition-colors duration-500">Go Back</button>
-                    <button onClick={() => console.log("take a photo")} className="absolute bottom-8 right-8 text-xl font-bold rounded-full p-4 bg-green-300 border-2 border-black betterhover:hover:bg-green-400 transition-colors duration-500">Take Photo</button>
+                    <button onClick={() => takePhoto()} className="absolute bottom-8 right-8 text-xl font-bold rounded-full p-4 bg-green-300 border-2 border-black betterhover:hover:bg-green-400 transition-colors duration-500">Take Photo</button>
+                </section>
+                <section id="photo" className={"flex h-full w-full items-center " + (picture ? "" : "hidden")}>
+                    <img ref={photoRef} alt="" className="h-full w-auto m-auto"/>
+                    <button onClick={() => setPicture(false)} className="absolute bottom-8 left-8 text-xl font-bold rounded-full p-4 bg-red-300 border-2 border-black betterhover:hover:bg-red-400 transition-colors duration-500">Retake Photo</button>
+                    <button onClick={() => console.log("Send this to server: " + photoRef.current.src)} className="absolute bottom-8 right-8 text-xl font-bold rounded-full p-4 bg-green-300 border-2 border-black betterhover:hover:bg-green-400 transition-colors duration-500">Upload</button>
                 </section>
             </section>
         )
