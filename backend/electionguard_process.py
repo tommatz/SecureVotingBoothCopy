@@ -18,6 +18,8 @@ from electionguard.election_polynomial import LagrangeCoefficientsRecord
 import pickle
 import shutil
 from sys import platform
+import pyAesCrypt
+
 if platform == "win32":
     import win32api
 
@@ -63,6 +65,12 @@ def sanitizeHardwareKeys():
 
 def reestablishGuardians():
     sanitizeHardwareKeys()
+
+    hardware_key = load_pickle("data/ceremony_info.p")["hardware_key"]
+
+    if hardware_key:
+        password = input("Please press gold contact on YubiKey: ")
+
     directory = 'data/keys'
     guardian_list = []
     found = True
@@ -78,8 +86,17 @@ def reestablishGuardians():
                 guardian_list.append(guardian)
 
             else:
-                f = os.path.join(directory, "Key"+str(it)+".p")
+                if hardware_key:
+                    f = os.path.join(directory, f"Key{str(it)}_enc.p")
+                else:
+                    f = os.path.join(directory, f"Key{str(it)}.p")
+
                 if os.path.isfile(f):
+                    if hardware_key:
+                        pyAesCrypt.decryptFile(f, os.path.join(directory, f"Key{str(it)}.p"), password, 65536)
+                        os.remove(f)
+                        f = os.path.join(directory, f"Key{str(it)}.p")
+
                     guardian = pickle.load(open(f, 'rb'))
                     guardian_list.append(guardian)
                 else:
@@ -107,16 +124,32 @@ def reestablishGuardians():
 
     return guardian_list
 
+import io
+def distributeKeys(guardians, hardware_key):
 
-def distributeKeys(guardians):
+    if hardware_key:
+        password = input("Please short press gold contact on yubikey: ")
+        
+
     if platform == "darwin":
-
+        usb_path = ""
         for i in range(len(guardians)):
-            usb_path = "/Volumes/Guardian" + str(i+1)
             if os.path.isdir(usb_path):
-                pickle.dump(guardians[i], open( "/Volumes/Guardian" + str(i+1) + "/Key"+str(i+1)+".p", "wb" )) #populate new keys
+                usb_path = f"/Volumes/Guardian{str(i+1)}/Key{str(i+1)}.p"
+                pickle.dump(guardians[i], open(usb_path, "wb" )) #populate new keys
+
             else:
-                pickle.dump(guardians[i], open( "data/keys/Key"+str(i+1)+".p", "wb" )) #if usb fails, save to local area
+                usb_path = f"data/keys/Key{str(i+1)}"
+                if hardware_key:
+                    usb_path += "_enc.p"
+                    with open(usb_path, "wb") as encrypt_file:
+                        pickled_guardian = pickle.dumps(guardians[i])
+                        pyAesCrypt.encryptStream(io.BytesIO(pickled_guardian), encrypt_file, password, 65536)
+                else:
+                    usb_path += ".p"
+                    pickle.dump(guardians[i], open(usb_path, "wb" )) #if usb fails, save to local area
+
+        
 
     elif platform == "win32":
 
@@ -184,7 +217,7 @@ def keyCeremony():
     print("---------------")
     print(guardian_records[0].election_public_key)
 
-    distributeKeys(guardians)
+    distributeKeys(guardians, election_info["hardware_key"])
     
     with open("data/electioninfo/metadata.p", 'wb') as f:
         f.write(pickle.dumps(internal_metadata))
