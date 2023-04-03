@@ -35,7 +35,7 @@ function App() {
   return (
       <header id='App' className={`h-screen w-screen transition-colors duration-500 ${darkMode && 'dark bg-slate-800'}`}>
         <TopBar darkMode={darkMode} setDarkMode={setDarkMode} login={login} setLogin={setLogin}/>
-        {login["active"] === false ? <Login url={url} setLogin={setLogin}/> : verifierID === "" ? <Vote contests={server["contests"]} url={url} login={login} setLogin={setLogin} verifierID={verifierID} setVerifierID={setVerifierID } /> : <Success login={login} setLogin={setLogin} verifierID={verifierID} setVerifierID={setVerifierID}/>}
+        {login["active"] === false ? <Login url={url} setLogin={setLogin}/> : verifierID === "" ? <Vote contests={server["contests"]} url={url} login={login} setLogin={setLogin} verifierID={verifierID} setVerifierID={setVerifierID } /> : <Success verifierID={verifierID} setVerifierID={setVerifierID} login={login} setLogin={setLogin} />}
         
       </header>
   );

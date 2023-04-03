@@ -51,4 +51,5 @@ class ElectionInfo(Base):
     __tablename__ = "election_info"
     name = Column(String, primary_key=True, index=True)
     guardians = Column(Integer, index=True)
-    quorum = Column(Integer, index=True)    
+    quorum = Column(Integer, index=True)
+    hardware_key = Column(Boolean, index=True)

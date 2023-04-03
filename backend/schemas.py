@@ -118,6 +118,7 @@ class KeyCeremonyInfo(BaseModel):
     name : str
     guardians : int
     quorum : int
+    hardware_key : bool
 
     @validator("quorum")
     def check_guardians(cls, v : int, values : dict):
