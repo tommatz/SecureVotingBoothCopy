@@ -333,10 +333,16 @@ def scan_id(id_card : UploadFile = File(...), database : Session = Depends(get_d
     file_path = f"data/barcodes/{id_card.filename}"
     with open(file_path, "wb") as wf:
         wf.write(id_card.file.read())
-        log_info(f"wrote id_card file into f{file_path}")  
-    return decode(file_path)[1]
+        log_info(f"wrote id_card file into {file_path}")
+    
+    decoded_id = decode(file_path)
+
+    if decoded_id[0]:
+        return decoded_id
+    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Could not read ID")
+
 
 # Sample for test - https://github.com/microsoft/electionguard/blob/main/data/1.0.0-preview-1/sample/hamilton-general/election_private_data/plaintext_ballots/plaintext_ballot_5a150c74-a2cb-47f6-b575-165ba8a4ce53.json
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="localhost", port=8006, reload=True, log_level="debug")
+    uvicorn.run("main:app", host="0.0.0.0", port=8006, reload=True, log_level="debug")

@@ -190,6 +190,24 @@
       "is_write_in": null
     },
     {
+      "object_id": "write-in",
+      "name": {
+        "text": [
+          {
+            "value": "Write In Candidate",
+            "language": "en"
+          },
+          {
+            "value": "Escribir en la candidata",
+            "language": "es"
+          }
+        ]
+      },
+      "party_id": null,
+      "image_uri": null,
+      "is_write_in": true
+    },
+    {
       "object_id": "referendum-pineapple-affirmative",
       "name": {
         "text": [
