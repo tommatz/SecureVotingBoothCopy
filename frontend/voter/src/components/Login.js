@@ -120,7 +120,49 @@ const Login = ({ url, setLogin }) => {
         else
             postReq()
     }
+    // used to get the data from the id login and set the fields
+    // test when 
+    const getLoginData = () => {
+        const user = {
+            "first": fields["first"]["value"],
+            "middle": fields["middle"]["value"],
+            "last": fields["last"]["value"],
+            "suffix": fields["suffix"]["value"]
+        }
+        const fullName = user.first + " " + user.last + " " + user.suffix
+        const address = {
+            "country_code": "US",
+            "country_area": fields.state.value,
+            "city": fields.city.value,
+            "postal_code": fields.zip.value,
+            "street_address": fields.street.value
+        }
+        const location = address.city + ", " + address.country_area
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ "username": user, "address": address })
+        };
 
+        fetch(url + "/voter/scan_id", requestOptions)
+            .then(async response => {
+                const isJson = response.headers.get('content-type')?.includes('application/json');
+                const data = isJson && await response.json();
+                // check for error response
+                if (!response.ok) {
+                    // get error message from the backend response or default to response status (i.e. 404 Not Found)
+                    const error = (data && typeof (data) == "object" && data["detail"][0]["msg"]) || (data && typeof (data) == "object" && data["detail"]) || response.status;
+                    return Promise.reject(error);
+                }
+
+                setError("")
+                setFields(data)//Reset fields on success
+            })
+            .catch(error => {
+                setError(error)
+            });
+
+    }
     //The postReq function rearranges the login form input data to a schema that the backend accepts. It then attempts to make a POST request to the backend.
     //Depending on the data sent to the backend, the response will either be successful or return an error (such as invalid characters in name)
     //An error will require the user to attempt their login again. A successful login however will update the topbar and send the user to the voting page.
@@ -185,7 +227,7 @@ const Login = ({ url, setLogin }) => {
                 <section id="photo" className={"flex h-full w-full items-center " + (picture ? "" : "hidden")}>
                     <img ref={photoRef} alt="" className="h-full w-auto m-auto"/>
                     <button onClick={() => setPicture(false)} className="absolute bottom-8 left-8 text-xl font-bold rounded-full p-4 bg-red-300 border-2 border-black betterhover:hover:bg-red-400 transition-colors duration-500">Retake Photo</button>
-                    <button onClick={() => uploadPhoto()} className="absolute bottom-8 right-8 text-xl font-bold rounded-full p-4 bg-green-300 border-2 border-black betterhover:hover:bg-green-400 transition-colors duration-500">Upload</button>
+                    <button onClick={() => {console.log("Send this to server: " + photoRef.current.src); setCamera(false)}} className="absolute bottom-8 right-8 text-xl font-bold rounded-full p-4 bg-green-300 border-2 border-black betterhover:hover:bg-green-400 transition-colors duration-500">Upload</button>
                 </section>
             </section>
         )
