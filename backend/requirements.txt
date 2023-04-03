@@ -14,7 +14,6 @@ cryptography==39.0.0
 dacite==1.7.0
 dependency-injector==4.41.0
 dnspython==2.3.0
-docbarcodes==1.0.9
 Eel==0.14.0
 electionguard==1.4.0
 exceptiongroup==1.1.0
