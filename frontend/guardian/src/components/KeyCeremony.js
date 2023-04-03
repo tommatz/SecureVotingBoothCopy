@@ -3,10 +3,12 @@ import TopBar from "./TopBar"
 
 const debug = true // The toggle to skip a correct sign in on the login page. Use "test" in the first name field to skip login while debug is set to true.
 
+
 const defaultVals = {
-    "electionName": { "display": "Election Name", "placeholder": "2023 Ohio Runoffs", "value": "", "required": true, "error": "" },
-    "guardians": { "display": "Number of Guardians", "placeholder": "2", "value": "", "required": true, "error": "" },
-    "quorum": { "display": "Quorum", "placeholder": "1", "value": "", "required": true, "error": "" },
+    "electionName": { "type": "text", "display": "Election Name", "placeholder": "2023 Ohio Runoffs", "value": "", "required": true, "error": "" },
+    "guardians": { "type": "text", "display": "Number of Guardians", "placeholder": "2", "value": "", "required": true, "error": "" },
+    "quorum": { "type": "text", "display": "Quorum", "placeholder": "1", "value": "", "required": true, "error": "" },
+    "hardware_key": { "type" : "checkbox", "display": "Use Hardware Key?", "value": false, "required": false, "error": "" },
 }
 
 const KeyCeremony = ({ url, setShow }) => {
@@ -16,8 +18,14 @@ const KeyCeremony = ({ url, setShow }) => {
     const [error, setError] = useState("") //Variable used to set the error message above the submit button.  
     
     const handleChange = (e) => {
-        const value = e.target.value
+
+        let value = ""
+        
         const fName = e.target.name
+        if (e.target.type === "checkbox")
+            value = !fields[fName].value
+        else
+            value = e.target.value
 
         setFields({ ...fields, [fName]: { ...fields[fName], "value": value } })
     }
@@ -51,11 +59,11 @@ const KeyCeremony = ({ url, setShow }) => {
         console.log(typeof(guardians))
         if (typeof(guardians) !== "number") return
         if (typeof(quorum) !== "number") return
-
+        console.log(fields.hardware_key.value)
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({"name" : fields.electionName.value, "guardians" : guardians, "quorum" : quorum})
+            body: JSON.stringify({"name" : fields.electionName.value, "guardians" : guardians, "quorum" : quorum, "hardware_key" : fields.hardware_key.value})
         };
 
         fetch(url + "/guardian/set_key_ceremony", requestOptions)
@@ -78,7 +86,10 @@ const KeyCeremony = ({ url, setShow }) => {
             })
             .catch(error => {
                 console.error(error)
-                setError("Unable to upload this input to the server!")
+                if(error["detail"])
+                    setError(error["detail"])
+                else
+                    setError("Unable to upload this input to the server!")
                 return (error);
             });
 
@@ -98,7 +109,7 @@ const KeyCeremony = ({ url, setShow }) => {
         <div className="grid place-items-center h-screen">
         <div className="w-2/3 m-auto space-y-4 p-4 bg-gray-300 dark:bg-slate-600 shadow-xl rounded-xl text-lg md:text-xl text-black dark:text-white transition-colors duration-500"> {/* This div is needed to center the items inside it using m-auto (margins auto) */}
             <h1 className="text-2xl md:text-4xl text-center font-bold">Key Ceremony</h1>
-            <form className="space-y-4 text-center" onSubmit={onSubmit}  >
+            <form className="space-y-4 text-center" onSubmit={onSubmit}>
                 <div className='grid md:grid-cols-2 gap-4 text-left'>
                 {Object.keys(fields).map((field) => (
                             <div key={field} className="flex flex-col">
@@ -108,10 +119,18 @@ const KeyCeremony = ({ url, setShow }) => {
                                     {fields[field].error !== "" && <p className="mx-2 font-bold">-</p>}
                                     <p className="text-red-600 animate-pulse">{fields[field].error}</p>
                                 </div>
-                                <input type="text" name={field} value={fields[field].value} maxLength="40" placeholder={"Enter the " + fields[field].display + " here (" + fields[field].placeholder + ")"} onChange={handleChange} className="w-full h-10 border-b-2 text-black dark:text-white border-black dark:border-white bg-transparent focus: transition-colors duration-500" />
+
+                                { fields[field].type === "text" ? 
+                                <input type={fields[field].type} name={field} value={fields[field].value} maxLength="40" placeholder={"Enter the " + fields[field].display + " here (" + fields[field].placeholder + ")"} onChange={handleChange} className="w-full h-10 border-b-2 text-black dark:text-white border-black dark:border-white bg-transparent focus: transition-colors duration-500" /> :
+                                <input type={fields[field].type} name={field} checked={fields[field].value} onChange={handleChange} className="h-10 w-8" />
+                                }
+
+
+
                             </div>
                         ))}
                 </div>
+                
                 {/* <button id="genKeysButton" className={("w-2/5 p-4 rounded-full cursor-pointer border-2 text-black dark:text-white m-4 border-black dark:border-white transition-all duration-500 betterhover:hover:scale-110 betterhover:hover:bg-green-300 dark:betterhover:hover:bg-slate-700")} > Generate keys</button> */}
                 {error !== "" && <p className="text-red-600 font-bold w-full">{error}</p>}
                 <input type='submit' value='Generate Keys' className={("w-2/5 p-4 rounded-full cursor-pointer border-2 text-black m-4 dark:text-white border-black dark:border-white transition-all duration-500 betterhover:hover:scale-110 betterhover:hover:bg-green-300 dark:betterhover:hover:bg-slate-700")} />

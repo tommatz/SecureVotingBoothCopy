@@ -5,7 +5,7 @@ import Login from './components/Login';
 import Vote from './components/Vote';
 import Success from './components/Success';
 
-const url = "http://localhost:8006";
+const url = "http://192.168.50.83:8006";
 
 function App() {
   document.body.style.overflow = "hidden" //This app is meant to fit the screen, this prevents the scrollbar from showing for the entire app (individual components may be scrollable)
@@ -35,7 +35,7 @@ function App() {
   return (
       <header id='App' className={`h-screen w-screen transition-colors duration-500 ${darkMode && 'dark bg-slate-800'}`}>
         <TopBar darkMode={darkMode} setDarkMode={setDarkMode} login={login} setLogin={setLogin}/>
-        {login["active"] === false ? <Login url={url} setLogin={setLogin}/> : verifierID === "" ? <Vote contests={server["contests"]} url={url} login={login} setLogin={setLogin} verifierID={verifierID} setVerifierID={setVerifierID } /> : <Success login={login} setLogin={setLogin} verifierID={verifierID} setVerifierID={setVerifierID}/>}
+        {login["active"] === false ? <Login url={url} setLogin={setLogin}/> : verifierID === "" ? <Vote contests={server["contests"]} url={url} login={login} setLogin={setLogin} verifierID={verifierID} setVerifierID={setVerifierID } /> : <Success verifierID={verifierID} setVerifierID={setVerifierID} login={login} setLogin={setLogin} />}
         
       </header>
   );

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect,useRef,useState } from "react"
 import TopBar
  from "./TopBar"
 const debug = true // The toggle to skip a correct sign in on the login page. Use "test" in the first name field to skip login while debug is set to true.
@@ -18,7 +18,59 @@ const VoterRegistration = ({ url, setShow }) => {
 
     const [fields, setFields] = useState(defaultLogin) //Variable to hold the current form information.
     const [error, setError] = useState("") //Variable used to set the error message above the submit button.
-    const [Login, setLogin] = useState(defaultLogin)
+    const [Login, setLogin] = useState(defaultLogin) 
+    const [camera,setCamera] = useState(false)
+    const [picture, setPicture] = useState(false)
+    const videoRef = useRef(null)
+    const photoRef = useRef(null)
+
+    useEffect(() => {
+        const getVideo = () => {
+            window.navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: "user", //Front camera on mobile
+                    width: { ideal: 4096 }, //Camera feed will be at 4K if their camera supports that resolution, or lowered to their max resolution if not
+                    height: { ideal: 2160 } 
+                  },
+                  audio: false
+            })
+            .then(stream => {
+                let video = videoRef.current
+                video.srcObject = stream
+                video.play()
+            })
+            .catch(err => {
+                console.error(err)
+            })
+        }
+
+        if(camera)
+            getVideo()
+    }, [videoRef, camera])
+
+    const takePhoto = () => {
+        if(videoRef.current == null)
+            return
+
+        setPicture(true)
+
+        let video = videoRef.current
+        const height = video.videoHeight
+        const width = video.videoWidth
+
+        let canvas = document.createElement('canvas')
+        canvas.height = height
+        canvas.width = width
+        let context = canvas.getContext('2d')
+        context.drawImage(video, 0, 0, width, height)
+
+        let image = canvas.toDataURL('image/jpeg');
+        photoRef.current.src = image
+    }
+
+
+
+
 
     //The handleChange function is called on every keystroke, it updates the respective field within the fields variable
     const handleChange = (e) => {
@@ -159,12 +211,31 @@ const VoterRegistration = ({ url, setShow }) => {
         return false
     }
 
+    if(camera)
+        return (
+            <section id="camera" className="h-[95%] w-full bg-gray-300 dark:bg-slate-600 transition-colors duration-500">
+                <section id="video" className={"h-full w-full " + (picture ? "hidden" : "")}>
+                    <video ref={videoRef} className="h-full w-full"/>
+                    <button onClick={() => setCamera(false)} className="absolute bottom-8 left-8 text-xl font-bold rounded-full p-4 bg-red-300 border-2 border-black betterhover:hover:bg-red-400 transition-colors duration-500">Go Back</button>
+                    <button onClick={() => takePhoto()} className="absolute bottom-8 right-8 text-xl font-bold rounded-full p-4 bg-green-300 border-2 border-black betterhover:hover:bg-green-400 transition-colors duration-500">Take Photo</button>
+                </section>
+                <section id="photo" className={"flex h-full w-full items-center " + (picture ? "" : "hidden")}>
+                    <img ref={photoRef} alt="" className="h-full w-auto m-auto"/>
+                    <button onClick={() => setPicture(false)} className="absolute bottom-8 left-8 text-xl font-bold rounded-full p-4 bg-red-300 border-2 border-black betterhover:hover:bg-red-400 transition-colors duration-500">Retake Photo</button>
+                    <button onClick={() => console.log("Send this to server: " + photoRef.current.src)} className="absolute bottom-8 right-8 text-xl font-bold rounded-full p-4 bg-green-300 border-2 border-black betterhover:hover:bg-green-400 transition-colors duration-500">Upload</button>
+                </section>
+            </section>
+        )
+
     return (
         <section id="voterRegistration" className="h-full w-full"> 
         <TopBar/>
         <div className="grid place-items-center h-screen">
              <div className="w-2/3 m-auto space-y-4 p-4 bg-gray-300 dark:bg-slate-600 shadow-xl rounded-xl text-lg md:text-xl text-black dark:text-white transition-colors duration-500"> 
                 <h1 className="text-2xl md:text-4xl text-center font-bold">Voter Registration</h1>
+                <div className="w-full text-center">
+                    <button onClick={() => setCamera(true)} className="px-8 py-4 rounded-full cursor-pointer font-bold border-2 border-black dark:border-white bg-gray-300 dark:bg-slate-600  text-black dark:text-white betterhover:hover:bg-gray-400 dark:betterhover:hover:bg-slate-700 transition-colors duration-500">Sign in with your ID</button>
+                </div>
                 <form className="space-y-4 text-center" onSubmit={onSubmit}>
                     <div className='grid md:grid-cols-2 gap-4 text-left'>
                         {Object.keys(fields).map((field) => (

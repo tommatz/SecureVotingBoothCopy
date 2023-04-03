@@ -26,6 +26,9 @@ from random_word import RandomWords
 from datetime import datetime
 from electionguard.data_store import DataStore
 from electionguard.serialize import to_file
+from electionguard_process import load_pickle
+
+from barcode_decoder import decode
 
 Base.metadata.create_all(bind=engine)
 
@@ -229,7 +232,6 @@ def register(login_info : LoginInfo, database: Session = Depends(get_db)):
 
     user = database.query(User).filter(User.fullname == str(login_info.username)).filter(User.address == str(login_info.address)).first()
 
-
     if user:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="User Already Exists. Did you mean to login?")
             
@@ -260,15 +262,22 @@ def get_verifier_id(login_info : LoginInfo, database: Session = Depends(get_db))
         return user.verifier_id
     
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Verifier code not found")
-
+import subprocess
 @app.post("/guardian/set_key_ceremony", tags=["Contest Setup"])
 def set_key_ceremony(key_ceremony_info : KeyCeremonyInfo, database: Session = Depends(get_db)):
-    ceremony = ElectionInfo(name=key_ceremony_info.name, guardians=key_ceremony_info.guardians, quorum=key_ceremony_info.quorum)
+    if key_ceremony_info.hardware_key:
+        log_info("Generating 38 character static password")
+        returnval = subprocess.run("ykman otp static --generate 1 --length 38 -f".split(" "), capture_output=True)
+        log_info(returnval)
+        if returnval.returncode == 1:
+            raise HTTPException(status_code=status.HTTP_417_EXPECTATION_FAILED, detail="YubiKey not found, please ensure it is plugged in")
+
+    ceremony = ElectionInfo(name=key_ceremony_info.name, guardians=key_ceremony_info.guardians, quorum=key_ceremony_info.quorum, hardware_key=key_ceremony_info.hardware_key)
     database.add(ceremony)
     database.commit()
 
     with open("data/ceremony_info.p", "wb") as file:
-        file.write(pickle.dumps({"no_guardians" : key_ceremony_info.guardians, "no_quorum" : key_ceremony_info.quorum}))
+        file.write(pickle.dumps({"no_guardians" : key_ceremony_info.guardians, "no_quorum" : key_ceremony_info.quorum, "hardware_key" :  key_ceremony_info.hardware_key}))
     
 @app.post("/guardian/tally_decrypt", tags=["Tally Decrypt"])
 def tally_decrypt():
@@ -326,6 +335,21 @@ def get_data(filename : str):
 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Verifier code not found")
 
+
+@app.post("/voter/scan_id", tags=["Authentication"])
+def scan_id(id_card : UploadFile = File(...), database : Session = Depends(get_db)):
+    file_path = f"data/barcodes/{id_card.filename}"
+    with open(file_path, "wb") as wf:
+        wf.write(id_card.file.read())
+        log_info(f"wrote id_card file into {file_path}")
+    
+    decoded_id = decode(file_path)
+
+    if decoded_id[0]:
+        return decoded_id
+    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Could not read ID")
+
+
 # Sample for test - https://github.com/microsoft/electionguard/blob/main/data/1.0.0-preview-1/sample/hamilton-general/election_private_data/plaintext_ballots/plaintext_ballot_5a150c74-a2cb-47f6-b575-165ba8a4ce53.json
 
 @app.post("/voter/scan_id", tags=["Authentication"])
@@ -337,4 +361,4 @@ def scan_id(id_card : UploadFile = File(...), database : Session = Depends(get_d
     return {'first': 'FIRSTNAME', 'middle': 'MIDDLENAME', 'last': 'LASTNAME', 'suffix': 'JR', 'country_code': 'US', 'country_area': 'DE', 'city': 'ANYTOWN', 'postal_code': '000000000  ', 'street_address': '123 MAIN STREET'}
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="localhost", port=8006, reload=True, log_level="debug")
+    uvicorn.run("main:app", host="0.0.0.0", port=8006, reload=True, log_level="debug")

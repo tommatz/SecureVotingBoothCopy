@@ -67,6 +67,25 @@ const Login = ({ url, setLogin }) => {
         photoRef.current.src = image
     }
 
+    function dataURLtoBlob(dataurl) {
+        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], {type:mime});
+    }
+
+    const uploadPhoto = () => {
+        const data = new FormData();
+        let file = dataURLtoBlob(photoRef.current.src)
+        data.append("id_card", file, "id_card.png");
+
+        fetch(url + "/voter/scan_id", { method: 'POST', body: data })
+
+
+    }
+
     //The handleChange function is called on every keystroke, it updates the respective field within the fields variable
     const handleChange = (e) => {
         const value = e.target.value

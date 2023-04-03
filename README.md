@@ -32,6 +32,13 @@ The backend and the frontend should be run seperately.
  
 ## Change Log
 
+**SPRINT 7** - *4/3/2023*
+
+- Full ID scanning added to login
+- Verifier completed
+- Yubikey implementation
+- IPad Testing
+
 **SPRINT 6** - *3/20/2023*
 
 - Added voter success page
