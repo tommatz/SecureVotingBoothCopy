@@ -326,7 +326,7 @@ def auto_corrections(search_query : str):
 import os.path as path
 @app.get("/verifier/get_verifier", response_model=VerifierInfo, response_model_exclude={"linked_vote"}, tags=["Verify"])
 def get_data(filename : str):
-
+    
     verification_path = f"data/electioninfo/ballots/verifier_links/{filename}.json"
 
     if(path.isfile(verification_path)):  
