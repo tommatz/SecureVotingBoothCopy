@@ -67,6 +67,25 @@ const Login = ({ url, setLogin }) => {
         photoRef.current.src = image
     }
 
+    function dataURLtoBlob(dataurl) {
+        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], {type:mime});
+    }
+
+    const uploadPhoto = () => {
+        const data = new FormData();
+        let file = dataURLtoBlob(photoRef.current.src)
+        data.append("id_card", file, "id_card.png");
+
+        fetch(url + "/voter/scan_id", { method: 'POST', body: data })
+
+
+    }
+
     //The handleChange function is called on every keystroke, it updates the respective field within the fields variable
     const handleChange = (e) => {
         const value = e.target.value
@@ -166,7 +185,7 @@ const Login = ({ url, setLogin }) => {
                 <section id="photo" className={"flex h-full w-full items-center " + (picture ? "" : "hidden")}>
                     <img ref={photoRef} alt="" className="h-full w-auto m-auto"/>
                     <button onClick={() => setPicture(false)} className="absolute bottom-8 left-8 text-xl font-bold rounded-full p-4 bg-red-300 border-2 border-black betterhover:hover:bg-red-400 transition-colors duration-500">Retake Photo</button>
-                    <button onClick={() => console.log("Send this to server: " + photoRef.current.src)} className="absolute bottom-8 right-8 text-xl font-bold rounded-full p-4 bg-green-300 border-2 border-black betterhover:hover:bg-green-400 transition-colors duration-500">Upload</button>
+                    <button onClick={() => uploadPhoto()} className="absolute bottom-8 right-8 text-xl font-bold rounded-full p-4 bg-green-300 border-2 border-black betterhover:hover:bg-green-400 transition-colors duration-500">Upload</button>
                 </section>
             </section>
         )
