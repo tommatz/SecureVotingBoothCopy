@@ -8,7 +8,12 @@ const url = "http://localhost:8006";
 
 function App() {
 
-  const defaultBallot = {"contest": "govener", "selection" : "Bob Ross"}
+  const defaultVals = {
+    "verify_code": { "display": "Verification Code", "placeholder": "Verification Code", "value": "", "required": true, "error": "" },
+    "vote_time": { "display": "Time of Vote", "placeholder": "Verification Code", "value": "", "required": false, "error": "" },
+    "location": { "display": "Location of Vote", "placeholder": "Verification Code", "value": "fff", "required": false, "error": "" },
+    "spoiled": { "display": "is Vote Spoiled", "placeholder": "Verification Code", "value": "", "required": false, "error": "" },
+  }
 
   const [server, setServer] = useServer(url);
   useEffect(() => {
@@ -16,8 +21,10 @@ function App() {
       setServer("Retry")
   }, [server, setServer])
 
-  const [show, setShow] = useState("landing");
-  const [ballots,setBallots] = useState(defaultBallot)
+  const [show, setShow] = useState("verifier");
+  const [fields,setFields] = useState(defaultVals)
+  const [error, setError] = useState("") //Variable used to set the error message above the submit button.
+  
   if (!server || server === false || server === "Error" || server === "Retry") {//Loading page while frontend is fetching server data
     return (
       <header id='App' className='h-screen w-screen flex flex-col'>
@@ -32,7 +39,7 @@ function App() {
   return (
     <header id="App" className="h-screen w-screen">
       {show === "verifier" 
-      ? <Verifier setShow={setShow} url={url} /> : <Results setShow={setShow} url={url} ballots={ballots} setBallots={setBallots} /> }
+      ? <Verifier setShow={setShow} url={url} fields={fields} setFields={setFields} defaultVals={defaultVals} error={error} setError={setError}/> : <Results setShow={setShow} url={url} fields={fields} setFields={setFields} error={error} defaultVals={defaultVals}/> }
     </header>
   );
 }
