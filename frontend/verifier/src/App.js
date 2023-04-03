@@ -4,7 +4,7 @@ import useServer from "./components/useServer";
 import Results from "./components/Results";
 import { useEffect, useState } from "react";
 
-const url = "http://192.168.50.83:8006";
+const url = "http://localhost:8006";
 
 function App() {
 

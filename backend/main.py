@@ -59,7 +59,6 @@ def recieve_ballot(ballot : Ballot, login_info : LoginInfo, database : Session =
 
     found = database.query(User).filter(User.fullname == str(login_info.username)).filter(User.address == str(login_info.address)).first()
 
-    print(found.voted)
     if found.voted == False:
         if ballot.spoiled == False:
             found.voted = True #mark that the user has voted
@@ -206,6 +205,9 @@ def get_tally(contest : str, candidate : Optional[str] = None, database : Sessio
 @app.post("/voter/login", response_model=LoginInfo, tags=["Authentication"])
 def receive_login(login_info : LoginInfo, database: Session = Depends(get_db)):
     user = database.query(User).filter(User.fullname == str(login_info.username)).filter(User.address == str(login_info.address)).first()
+
+    if user.voted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Attempt to double vote")
     if user:
         return login_info
         
@@ -361,4 +363,4 @@ def scan_id(id_card : UploadFile = File(...), database : Session = Depends(get_d
     return {'first': 'FIRSTNAME', 'middle': 'MIDDLENAME', 'last': 'LASTNAME', 'suffix': 'JR', 'country_code': 'US', 'country_area': 'DE', 'city': 'ANYTOWN', 'postal_code': '000000000  ', 'street_address': '123 MAIN STREET'}
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8006, reload=True, log_level="debug")
+    uvicorn.run("main:app", host="localhost", port=8006, reload=True, log_level="debug")
