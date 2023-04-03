@@ -256,6 +256,7 @@ def get_verifier_id(login_info : LoginInfo, database: Session = Depends(get_db))
     user : User = database.query(User).filter(User.fullname == str(login_info.username)).filter(User.address == str(login_info.address)).first()
 
     if user:
+        # user.verifier_id does not have a value
         return user.verifier_id
     
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Verifier code not found")
@@ -326,6 +327,14 @@ def get_data(filename : str):
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Verifier code not found")
 
 # Sample for test - https://github.com/microsoft/electionguard/blob/main/data/1.0.0-preview-1/sample/hamilton-general/election_private_data/plaintext_ballots/plaintext_ballot_5a150c74-a2cb-47f6-b575-165ba8a4ce53.json
+
+@app.post("/voter/scan_id", tags=["Authentication"])
+def scan_id(id_card : UploadFile = File(...), database : Session = Depends(get_db)):
+    return {'first': 'FIRSTNAME', 'middle': 'MIDDLENAME', 'last': 'LASTNAME', 'suffix': 'JR', 'country_code': 'US', 'country_area': 'DE', 'city': 'ANYTOWN', 'postal_code': '000000000  ', 'street_address': '123 MAIN STREET'}
+
+@app.post("/guardian/scan_id", tags=["Authentication"])
+def scan_id(id_card : UploadFile = File(...), database : Session = Depends(get_db)):
+    return {'first': 'FIRSTNAME', 'middle': 'MIDDLENAME', 'last': 'LASTNAME', 'suffix': 'JR', 'country_code': 'US', 'country_area': 'DE', 'city': 'ANYTOWN', 'postal_code': '000000000  ', 'street_address': '123 MAIN STREET'}
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="localhost", port=8006, reload=True, log_level="debug")

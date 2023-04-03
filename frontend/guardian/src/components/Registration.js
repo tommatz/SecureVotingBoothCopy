@@ -28,6 +28,50 @@ const VoterRegistration = ({ url, setShow }) => {
         setFields({ ...fields, [fName]: { ...fields[fName], "value": value } })
     }
 
+     // used to get the data from the id login and set the fields
+    // test when 
+    const getLoginData = () => {
+        const user = {
+            "first": fields["first"]["value"],
+            "middle": fields["middle"]["value"],
+            "last": fields["last"]["value"],
+            "suffix": fields["suffix"]["value"]
+        }
+        const fullName = user.first + " " + user.last + " " + user.suffix
+        const address = {
+            "country_code": "US",
+            "country_area": fields.state.value,
+            "city": fields.city.value,
+            "postal_code": fields.zip.value,
+            "street_address": fields.street.value
+        }
+        const location = address.city + ", " + address.country_area
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ "username": user, "address": address })
+        };
+
+        fetch(url + "/guardian/scan_id", requestOptions)
+            .then(async response => {
+                const isJson = response.headers.get('content-type')?.includes('application/json');
+                const data = isJson && await response.json();
+                // check for error response
+                if (!response.ok) {
+                    // get error message from the backend response or default to response status (i.e. 404 Not Found)
+                    const error = (data && typeof (data) == "object" && data["detail"][0]["msg"]) || (data && typeof (data) == "object" && data["detail"]) || response.status;
+                    return Promise.reject(error);
+                }
+
+                setError("")
+                setFields(data)//Reset fields on success
+            })
+            .catch(error => {
+                setError(error)
+            });
+
+    }
+
     //onSubmit runs each time the submit button is clicked. It checks if the form is filled out correctly. If the form is filled out correctly then the postReq function is called.
     const onSubmit = (e) => {
         // causes page to not close even if sucessful
