@@ -36,7 +36,7 @@ const Verifier = ({ url, setShow, fields, setFields, defaultVals, error, setErro
     const postReq = () => {
     //     /// needs a verifier that the code matches the lexical structure of what the codes should be ie can it have nums, letters, and or symbols
         console.log()
-        fetch(url + "/verifier/get_verifier?filename="+fields["verify_code"]["value"])
+         fetch(url + "/verifier/get_verifier?filename="+fields["verify_code"]["value"])
             .then(async res => {
 
                 const isJson = res.headers.get('content-type')?.includes('application/json');
@@ -48,14 +48,13 @@ const Verifier = ({ url, setShow, fields, setFields, defaultVals, error, setErro
                     const error = data || res.status;
                     return Promise.reject(error);
                 }
-                console.log("here")
                 Object.keys(data).map((field) => fields[field].value = data[field]);
                 setFields(fields)
                 
-                  
                 setError("")
                 
-                   
+                setShow("Results")
+
                 return (res);
             })
             .catch(error => {
@@ -63,8 +62,8 @@ const Verifier = ({ url, setShow, fields, setFields, defaultVals, error, setErro
                 setError("Unable to upload this input to the server!")
                 return (error);
             });
+
             
-        setShow("Results")
     }
 
     const checkEmpty = (fName) => {
