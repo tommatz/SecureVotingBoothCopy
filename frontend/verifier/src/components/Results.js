@@ -2,7 +2,7 @@ import TopBar from "./TopBar"
 
 const Results= ({ url, fields, setFields, setShow, error, setError, defaultVals }) => {
 
-        const onSubmit = (e) => {
+    const onSubmit = (e) => {
         e.preventDefault()
         //setFields(defaultVals)
         setShow("verifier")
