@@ -227,7 +227,7 @@ const Login = ({ url, setLogin }) => {
                 <section id="photo" className={"flex h-full w-full items-center " + (picture ? "" : "hidden")}>
                     <img ref={photoRef} alt="" className="h-full w-auto m-auto"/>
                     <button onClick={() => setPicture(false)} className="absolute bottom-8 left-8 text-xl font-bold rounded-full p-4 bg-red-300 border-2 border-black betterhover:hover:bg-red-400 transition-colors duration-500">Retake Photo</button>
-                    <button onClick={() => {console.log("Send this to server: " + photoRef.current.src); setCamera(false)}} className="absolute bottom-8 right-8 text-xl font-bold rounded-full p-4 bg-green-300 border-2 border-black betterhover:hover:bg-green-400 transition-colors duration-500">Upload</button>
+                    <button onClick={() => uploadPhoto()} className="absolute bottom-8 right-8 text-xl font-bold rounded-full p-4 bg-green-300 border-2 border-black betterhover:hover:bg-green-400 transition-colors duration-500">Upload</button>
                 </section>
             </section>
         )
