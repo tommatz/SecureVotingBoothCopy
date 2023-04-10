@@ -134,8 +134,10 @@ def distributeKeys(guardians, hardware_key):
     if platform == "darwin":
         usb_path = ""
         for i in range(len(guardians)):
+            usb_path = f"/Volumes/Guardian{str(i+1)}"
+           
             if os.path.isdir(usb_path):
-                usb_path = f"/Volumes/Guardian{str(i+1)}/Key{str(i+1)}.p"
+                usb_path += f"/Key{str(i+1)}.p"
                 pickle.dump(guardians[i], open(usb_path, "wb" )) #populate new keys
 
             else:
