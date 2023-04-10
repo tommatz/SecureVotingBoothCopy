@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 
 const debug = true // The toggle to skip a correct sign in on the login page. Use "test" in the first name field to skip login while debug is set to true.
 
@@ -18,72 +18,12 @@ const Login = ({ url, setLogin }) => {
     const [fields, setFields] = useState(defaultLogin) //Variable to hold the current form information.
     const [error, setError] = useState("") //Variable used to set the error message above the submit button.
 
-    const videoRef = useRef(null)
-    const photoRef = useRef(null)
-    const [camera, setCamera] = useState(false)
-    const [picture, setPicture] = useState(false)
-
-    useEffect(() => {
-        const getVideo = () => {
-            window.navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode: "user", //Front camera on mobile
-                    width: { ideal: 4096 }, //Camera feed will be at 4K if their camera supports that resolution, or lowered to their max resolution if not
-                    height: { ideal: 2160 } 
-                  },
-                  audio: false
-            })
-            .then(stream => {
-                let video = videoRef.current
-                video.srcObject = stream
-                video.play()
-            })
-            .catch(err => {
-                console.error(err)
-            })
-        }
-
-        if(camera)
-            getVideo()
-    }, [videoRef, camera])
-
-    const takePhoto = () => {
-        if(videoRef.current == null)
-            return
-
-        setPicture(true)
-
-        let video = videoRef.current
-        const height = video.videoHeight
-        const width = video.videoWidth
-
-        let canvas = document.createElement('canvas')
-        canvas.height = height
-        canvas.width = width
-        let context = canvas.getContext('2d')
-        context.drawImage(video, 0, 0, width, height)
-
-        let image = canvas.toDataURL('image/jpeg');
-        photoRef.current.src = image
-    }
-
-    function dataURLtoBlob(dataurl) {
-        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-        while(n--){
-            u8arr[n] = bstr.charCodeAt(n);
-        }
-        return new Blob([u8arr], {type:mime});
-    }
-
     const uploadPhoto = () => {
         const data = new FormData();
-        let file = dataURLtoBlob(photoRef.current.src)
-        data.append("id_card", file, "id_card.png");
+        //let file = 
+        //data.append("id_card", file, "id_card.png");
 
         fetch(url + "/voter/scan_id", { method: 'POST', body: data })
-
-
     }
 
     //The handleChange function is called on every keystroke, it updates the respective field within the fields variable
@@ -215,30 +155,14 @@ const Login = ({ url, setLogin }) => {
 
         return false
     }
-
-    if(camera)
-        return (
-            <section id="camera" className="h-[95%] w-full bg-gray-300 dark:bg-slate-600 transition-colors duration-500">
-                <section id="video" className={"h-full w-full " + (picture ? "hidden" : "")}>
-                    <video ref={videoRef} className="h-full w-full"/>
-                    <button onClick={() => setCamera(false)} className="absolute bottom-8 left-8 text-xl font-bold rounded-full p-4 bg-red-300 border-2 border-black betterhover:hover:bg-red-400 transition-colors duration-500">Go Back</button>
-                    <button onClick={() => takePhoto()} className="absolute bottom-8 right-8 text-xl font-bold rounded-full p-4 bg-green-300 border-2 border-black betterhover:hover:bg-green-400 transition-colors duration-500">Take Photo</button>
-                </section>
-                <section id="photo" className={"flex h-full w-full items-center " + (picture ? "" : "hidden")}>
-                    <img ref={photoRef} alt="" className="h-full w-auto m-auto"/>
-                    <button onClick={() => setPicture(false)} className="absolute bottom-8 left-8 text-xl font-bold rounded-full p-4 bg-red-300 border-2 border-black betterhover:hover:bg-red-400 transition-colors duration-500">Retake Photo</button>
-                    <button onClick={() => uploadPhoto()} className="absolute bottom-8 right-8 text-xl font-bold rounded-full p-4 bg-green-300 border-2 border-black betterhover:hover:bg-green-400 transition-colors duration-500">Upload</button>
-                </section>
-            </section>
-        )
-    
+ 
     return (
         <section id="login" className="flex h-[95%] w-full"> {/* The 95% vertical height of the template section is to fill the rest of the screen (top bar takes 5%) */}
             <div className="w-3/4 m-auto space-y-4 p-4 bg-gray-300 dark:bg-slate-600 shadow-xl rounded-xl text-lg md:text-xl text-black dark:text-white transition-colors duration-500"> {/* This div is needed to center the items inside it using m-auto (margins auto) */}
                 <h1 className="text-2xl md:text-4xl text-center font-bold">Voter Login</h1>
 
                 <div className="w-full text-center">
-                    <button onClick={() => setCamera(true)} className="px-8 py-4 rounded-full cursor-pointer font-bold border-2 border-black dark:border-white bg-gray-300 dark:bg-slate-600  text-black dark:text-white betterhover:hover:bg-gray-400 dark:betterhover:hover:bg-slate-700 transition-colors duration-500">Sign in with your ID</button>
+                    <button onClick={() => console.log("Clicked")} className="px-8 py-4 rounded-full cursor-pointer font-bold border-2 border-black dark:border-white bg-gray-300 dark:bg-slate-600  text-black dark:text-white betterhover:hover:bg-gray-400 dark:betterhover:hover:bg-slate-700 transition-colors duration-500">Sign in with your ID</button>
                 </div>
 
                 <form className="space-y-4 text-center" onSubmit={onSubmit}>
