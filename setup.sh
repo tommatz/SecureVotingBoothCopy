@@ -2,7 +2,7 @@
 BACKEND_IP=""
 # Checks if network flag is set and sets backend ip appropriately
 if [ "$1" = "-n" ]; then
-    BACKEND_IP=$(python3 -c "import socket; print(socket.gethostbyname(socket.gethostname()))")
+    BACKEND_IP=$(python3 -c "import socket; s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.connect(('8.8.8.8', 80)); print(s.getsockname()[0])")
 else
     BACKEND_IP="localhost"
 fi
