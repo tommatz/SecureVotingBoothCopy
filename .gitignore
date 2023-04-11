@@ -134,4 +134,5 @@ node_modules
 vote.db
 *.p
 electioninfo/
+.DS_Store
 backend/data/.DS_Store

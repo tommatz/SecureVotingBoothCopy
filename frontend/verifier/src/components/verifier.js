@@ -1,8 +1,15 @@
 import TopBar from "./TopBar"
 
+const qs_match = new RegExp("code=([^ ]+)")
+
 const Verifier = ({ url, setShow, fields, setFields, defaultVals, error, setError }) => {
-    
-    
+    const getCode = (address) => {
+        const match = address.match(qs_match);
+        if(match)
+            return decodeURIComponent(match[1]);
+        return fields['verify_code'].value;
+    }
+
     const handleChange = (e) => {
         const value = e.target.value
         const fName = e.target.name
@@ -90,7 +97,7 @@ const Verifier = ({ url, setShow, fields, setFields, defaultVals, error, setErro
                                     {fields['verify_code'].error !== "" && <p className="mx-2 font-bold">-</p>}
                                     <p className="text-red-600 animate-pulse">{fields['verify_code'].error}</p>
                                 </div>
-                                <input type="text" name={'verify_code'} value={fields['verify_code'].value} placeholder={"Enter the " + fields['verify_code'].display + " here (" + fields['verify_code'].placeholder + ")"} onChange={handleChange} className="w-full h-10 border-b-2 text-black dark:text-white border-black dark:border-white bg-transparent focus: transition-colors duration-500" />
+                                <input type="text" name={'verify_code'} defaultValue={getCode(window.location.href)} placeholder={"Enter the " + fields['verify_code'].display + " here (" + fields['verify_code'].placeholder + ")"} onChange={handleChange} className="w-full h-10 border-b-2 text-black dark:text-white border-black dark:border-white bg-transparent focus: transition-colors duration-500" />
                             </div>
                         
                 </div>
