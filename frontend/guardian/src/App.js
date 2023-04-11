@@ -4,13 +4,15 @@ import Upload from "./components/Upload";
 import Landing from "./components/landing";
 import KeyCeremony from "./components/KeyCeremony"
 import VoterRegistration from "./components/Registration"
+import ip from "./constants/backend_route.json"; // The relative path to your File
 
 //import Template from "./components/Template";
 import { useEffect, useState } from "react";
 
-const url = "http://localhost:8006";
+const url = "http://" + ip["ip"] + ":8006";
 
 function App() {
+  console.log(ip["ip"])
 
   const [server, setServer] = useServer(url);
   useEffect(() => {

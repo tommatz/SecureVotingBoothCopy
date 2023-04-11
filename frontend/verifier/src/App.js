@@ -2,9 +2,12 @@
 import Verifier from "./components/verifier";
 import useServer from "./components/useServer";
 import Results from "./components/Results";
+import ip from "./constants/backend_ip.json"; // The relative path to your File
+
 import { useEffect, useState } from "react";
 
-const url = "http://localhost:8006";
+const url = "http://" + ip["ip"] + ":8006";
+
 
 function App() {
 
