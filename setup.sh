@@ -23,3 +23,4 @@ echo "Activating virtual environment"
 source backend/env/bin/activate
 echo "Downloading python requirements"
 (cd backend && ./setup_backend.sh)
+(cd frontend/voter && npm i) & (cd frontend/guardian && npm i) & (cd frontend/verifier && npm i)
