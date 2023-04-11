@@ -4,7 +4,7 @@ import Upload from "./components/Upload";
 import Landing from "./components/landing";
 import KeyCeremony from "./components/KeyCeremony"
 import VoterRegistration from "./components/Registration"
-import ip from "./constants/backend_route.json"; // The relative path to your File
+import ip from "./constants/backend_ip.json"; // The relative path to your File
 
 //import Template from "./components/Template";
 import { useEffect, useState } from "react";
