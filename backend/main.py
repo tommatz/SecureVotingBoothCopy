@@ -1,7 +1,7 @@
 import uvicorn
 import json
 from typing import List, Union, Dict
-from fastapi import FastAPI, HTTPException, status, Query, UploadFile, Depends, File, Form
+from fastapi import FastAPI, HTTPException, status, Query, UploadFile, Depends, File, Form, Response, Request
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from schemas import *
@@ -351,11 +351,21 @@ def scan_id(id_card : UploadFile = File(...), database : Session = Depends(get_d
     raise HTTPException(status_code=status.HTTP_418_IM_A_TEAPOT, detail="Could not read ID")
 
 import qrcode
+from fastapi.responses import FileResponse
+import re
+import urllib.parse
 @app.get("/voter/create_qrcode", tags=["Verify"])
-def create_qrcode(verifier_code : str):
-    img = qrcode.make(verifier_code)
-    img.save("testing1.png")
-
+def create_qrcode(verifier_code : str, request: Request):
+    url_match = re.search(r".+:", str(request.base_url))
+    if not url_match:
+        raise HTTPException(status_code=status.HTTP_418_IM_A_TEAPOT, detail="Could not correctly construct url for qr code") 
+    url = url_match.group(0)
+    port = "3002"
+    url += port
+    url += f"/verify?code={urllib.parse.quote(verifier_code)}"
+    img = qrcode.make(url)
+    img.save("data/tmp_qrcode/code.png")
+    return FileResponse("data/tmp_qrcode/code.png")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="localhost", port=8006, reload=True, log_level="debug")
