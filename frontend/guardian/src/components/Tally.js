@@ -56,7 +56,7 @@ const Tally = ({ contests, url, setShow }) => {
     }
 
     return (
-        <section id="tally" className="h-full w-full flex flex-row">
+        <section id="tally" className="h-full overflow-hidden w-full flex flex-row">
 
             <section id="tally_nav" className="h-full w-[15%] bg-gradient-to-r from-green-800 to-green-600 border-r-2 border-black shadow-xl shadow-black text-white">
 

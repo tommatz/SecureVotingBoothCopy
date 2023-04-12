@@ -228,7 +228,7 @@ const VoterRegistration = ({ url, setShow }) => {
         )
 
     return (
-        <section id="voterRegistration" className="h-full w-full"> 
+        <section id="voterRegistration" className="h-full overflow-hidden w-full"> 
         <TopBar/>
         <div className="grid place-items-center h-screen">
              <div className="w-2/3 m-auto space-y-4 p-4 bg-gray-300 dark:bg-slate-600 shadow-xl rounded-xl text-lg md:text-xl text-black dark:text-white transition-colors duration-500"> 

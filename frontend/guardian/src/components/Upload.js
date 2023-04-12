@@ -6,7 +6,7 @@ const Upload = ({ url, setShow }) => {
         <section id="upload" className="h-full w-full">
             <TopBar />
 
-            <section id="upload-content" className="h-[90%] w-full flex flex-col">
+            <section id="upload-content" className="h-[90%] overflow-hidden w-full flex flex-col">
                 <div className="m-auto text-center space-y-12"> {/* This div is needed to center the items inside it using m-auto (margins auto) */}
                     <h1 className="text-4xl font-bold">Manifest Upload Page</h1>
                     <SendFile url={url} />

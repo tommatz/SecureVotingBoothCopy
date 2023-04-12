@@ -83,7 +83,7 @@ console.log(data)
     }
 
     return (
-        <div className="flex flex-col space-y-12">
+        <div className="flex flex-col overflow-hidden space-y-12">
 
             <select id="ceremony-select" type="select" value={ceremony} selected={ceremony} onChange={handleChange}
                 className={("border-2 border-black cursor-pointer text-lg rounded-lg p-4 betterhover:hover:bg-slate-300 transition-colors duration-300") + (ceremony === "" ? " text-neutral-500" : " text-black")}>

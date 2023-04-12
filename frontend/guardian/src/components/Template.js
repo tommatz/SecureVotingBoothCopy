@@ -7,7 +7,7 @@ const Template = () => {
     it is then displayed on the user's screen as the html within the return statement*/
 
     return (
-        <section id="template" className="h-full w-full flex flex-col space-y-4">
+        <section id="template" className="h-full w-full overflow-hidden flex flex-col space-y-4">
             <div className="m-auto text-center text-black dark:text-white transition-colors duration-500"> {/* This div is needed to center the items inside it using m-auto (margins auto) */}
                 <h1 className="text-4xl font-bold">Template Page</h1>
                 <p className="text-xl text-neutral-700 dark:text-neutral-400 transition-colors duration-500">for the guardians</p>
